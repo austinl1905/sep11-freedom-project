@@ -6,14 +6,30 @@ Project: **X**
 
 ---
 
-X/X/X:
-* Text
+10/28/23:
+* Necessary components for a three.js app:
+    * Camera
+    * Renderer
+    * Scene
+        * I'm not really sure what each of these do. But I'll figure it out soon enough
 
-X/X/X:
-* Text
+10/29/23:
+* Attempted to refactor my code by organizing my constructors in functions. Did not end well so I will just have them all in function `init()` for now.
+* Constructors look like this:
+ ```js
+const material = new THREE.MeshPhongMaterial(
+			{color: 0x0032ff},
+			{emissive: 0x072534},
+			{side: THREE.DoubleSide},
+			{flatShading: true }
+		);
+```
+* Good thing I'm already used to OOP
+* Subatomic particles in diagrams are usually represented as spheres. So I'll have to use the Sphere Geometry constructor.
+* Different elements have different amounts of neutrons, protons, and electrons. I'll probably use recursion at some point to add all of my meshes in to make the code DRY.
 
 
-<!-- 
+<!--
 * Links you used today (websites, videos, etc)
 * Things you tried, progress you made, etc
 * Challenges, a-ha moments, etc
