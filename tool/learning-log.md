@@ -42,7 +42,9 @@ Shapes
 
 Challenges:
 
-Figure out how to add lots of particles without a ton of code
+- Figure out how to add lots of particles without a ton of code
+- camera focuses on one particle only
+
 
 <!--
 * Links you used today (websites, videos, etc)
