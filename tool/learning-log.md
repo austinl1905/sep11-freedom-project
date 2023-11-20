@@ -28,6 +28,21 @@ const material = new THREE.MeshPhongMaterial(
 * Subatomic particles in diagrams are usually represented as spheres. So I'll have to use the Sphere Geometry constructor.
 * Different elements have different amounts of neutrons, protons, and electrons. I'll probably use recursion at some point to add all of my meshes in to make the code DRY.
 
+10/13/23:
+
+Lighting
+- Directional light is self explanatory. Combine with ambient light for some nice textures
+
+11/20/23
+
+Shapes
+
+- Spheres to represent neutrons and protons
+- Torus to represent electron shells
+
+Challenges:
+
+Figure out how to add lots of particles without a ton of code
 
 <!--
 * Links you used today (websites, videos, etc)
