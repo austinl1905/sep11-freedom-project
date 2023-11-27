@@ -45,6 +45,15 @@ Challenges:
 - Figure out how to add lots of particles without a ton of code
 - camera focuses on one particle only
 
+11/26/23
+
+Groups:
+- Removes (most) of the headache that is adding lots of meshes
+- Basically add meshes to the group which are added to the scene
+- Objects are affected in the same way in the group
+	- Ex: `group.position.x` will set the position for all meshes in that group
+- https://www.youtube.com/watch?v=jVW-jvuZIFQ cool tutorial
+
 
 <!--
 * Links you used today (websites, videos, etc)
