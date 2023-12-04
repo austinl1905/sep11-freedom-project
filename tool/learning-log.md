@@ -54,6 +54,11 @@ Groups:
 	- Ex: `group.position.x` will set the position for all meshes in that group
 - https://www.youtube.com/watch?v=jVW-jvuZIFQ cool tutorial
 
+12/3/23
+
+- I got distracted watching cat videos but I did do some refactoring with the OOP knowledge I learned
+- How the heck are you supposed to use OOP with a library
+
 
 <!--
 * Links you used today (websites, videos, etc)
