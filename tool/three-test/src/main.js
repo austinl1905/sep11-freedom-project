@@ -5,23 +5,20 @@ class App
 {
     constructor()
     {
-        this.camera;
-        this.scene;
-        this.renderer;
+        this.camera = new THREE.PerspectiveCamera(
+            70,
+            window.innerWidth / window.innerHeight,
+            0.01,
+            20
+        );
+        this.scene = new THREE.Scene();
+        this.renderer = new THREE.WebGLRenderer();
     }
 
     init()
     {
-        this.camera = new THREE.PerspectiveCamera
-		(
-			70, window.innerWidth / window.innerHeight, 0.01, 20
-		);
         this.camera.position.z = 10;
 
-        this.scene = new THREE.Scene();
-		this.scene.background = new THREE.Color( 0x333333 );
-
-        this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
 
@@ -35,6 +32,7 @@ class App
         );
         const sphere = new THREE.Mesh( geometry, material );
         this.scene.add( sphere );
+        this.scene.background = new THREE.Color( 0x333333 );
 
         window.addEventListener( 'resize', this.onWindowResize, false );
 
@@ -69,7 +67,7 @@ class App
     {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.setSize(window.innerWidth / window.innerHeight);
     }
 }
 
