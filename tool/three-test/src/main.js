@@ -15,21 +15,32 @@ class App
 
     init()
     {
-        this.camera.position.z = 10;
+        this.camera.position.z = 25;
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
 
-        const geometry = new THREE.SphereGeometry(1, 64, 64);
-        const material = new THREE.MeshPhongMaterial
+        const sphereGeometry = new THREE.SphereGeometry(1, 64, 64);
+        const sphereMaterial = new THREE.MeshPhongMaterial
         (
             {color: 0xff0032},
 			{emissive: 0x072534},
 			{side: THREE.DoubleSide},
 			{flatShading: false},
         );
-        const sphere = new THREE.Mesh( geometry, material );
-        this.scene.add( sphere );
+        const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+
+        const torusGeometry = new THREE.TorusGeometry(10, 0.025)
+        const torusMaterial = new THREE.MeshBasicMaterial
+        (
+            {color: 0x37ff37}
+        )
+        const torus = new THREE.Mesh( torusGeometry, torusMaterial );
+
+        const group = new THREE.Group();
+        group.add(sphere, torus);
+
+        this.scene.add( group );
         this.scene.background = new THREE.Color( 0x333333 );
 
         window.addEventListener( 'resize', this.onWindowResize, false );
