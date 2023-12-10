@@ -6,13 +6,11 @@ class App
     constructor()
     {
         this.camera = new THREE.PerspectiveCamera(
-            70,
-            window.innerWidth / window.innerHeight,
-            0.01,
-            20
+             45, window.innerWidth / window.innerHeight, 1, 1000
         );
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
+        this.onWindowResize = this.onWindowResize.bind(this);
     }
 
     init()
@@ -22,7 +20,7 @@ class App
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
 
-        const geometry = new THREE.SphereGeometry();
+        const geometry = new THREE.SphereGeometry(1, 64, 64);
         const material = new THREE.MeshPhongMaterial
         (
             {color: 0xff0032},
@@ -44,22 +42,26 @@ class App
 
     initLight()
 	{
-		const lights = [];
+		// const lights = [];
 
-		for (let i = 0; i < 3; i ++)
-		{
-			lights.push( new THREE.DirectionalLight( 0xffffff, 0.75 ) );
-		}
-			lights[ 0 ].position.set( 0, 200, 0 );
-			lights[ 1 ].position.set( 100, 200, 100 );
-			lights[ 2 ].position.set( - 100, - 200, - 100 );
+		// for (let i = 0; i < 3; i ++)
+		// {
+		// 	lights.push( new THREE.DirectionalLight( 0xffffff, 0.75 ) );
+		// }
+		// 	lights[ 0 ].position.set( 0, 200, 0 );
+		// 	lights[ 1 ].position.set( 100, 200, 100 );
+		// 	lights[ 2 ].position.set( - 100, - 200, - 100 );
 
-		for (let i = 0; i < lights.length; i++)
-		{
-			this.scene.add(lights[i]);
-		}
+		// for (let i = 0; i < lights.length; i++)
+		// {
+		// 	this.scene.add(lights[i]);
+		// }
 
-		const ambientLight = new THREE.AmbientLight( 0xffffff , 1 );
+        const spotLight = new THREE.SpotLight( 0xffffff, 10, 0, Math.pi);
+        spotLight.position.set(2, 3.5, 0)
+        this.scene.add(spotLight);
+
+		const ambientLight = new THREE.AmbientLight( 0xffffff , 0.75 );
 		this.scene.add( ambientLight );
 	}
 
@@ -67,7 +69,7 @@ class App
     {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth / window.innerHeight);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 }
 
