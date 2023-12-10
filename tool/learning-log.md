@@ -59,6 +59,10 @@ Groups:
 - I got distracted watching cat videos but I did do some refactoring with the OOP knowledge I learned
 - How the heck are you supposed to use OOP with a library
 
+12/10/23
+
+- Spot Light: Sort of like directional light but better. Takes in color and intensity as arguments just like other lights
+- Torus Geometry: donuts are toruses apparently. Will be useful when I make my electron shell representations
 
 <!--
 * Links you used today (websites, videos, etc)
