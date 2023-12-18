@@ -89,9 +89,12 @@ class App
         for (let i = 0; i < 2; i++)
         {
             const electron = new THREE.Mesh( electronGeometry, electronMaterial);
+            // Calculate the angle for the electron's position in polar coordinates
             let angle = (i / 2) * Math.PI * 2;
+            // Calculate the X and Z coordinates for the electron's position based on the angle
             let orbitX = Math.cos(angle) * this.torusRadii.get('sub1');
             let orbitZ = Math.sin(angle) * this.torusRadii.get('sub1');
+            // Set the position of the electron in 3D space
             electron.position.set(orbitX, 0, orbitZ);
             this.electrons1.add(electron);
         }
