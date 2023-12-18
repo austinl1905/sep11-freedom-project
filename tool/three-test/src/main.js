@@ -5,12 +5,39 @@ class App
 {
     constructor()
     {
-        this.camera = new THREE.PerspectiveCamera(
+        this.camera = new THREE.PerspectiveCamera
+        (
              45, window.innerWidth / window.innerHeight, 1, 1000
         );
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
         this.onWindowResize = this.onWindowResize.bind(this);
+        this.animate = this.animate.bind(this);
+        this.torusRadii = new Map
+        (
+            [
+                ['sub1', 10],
+                ['sub2', 15],
+                ['sub3', 20]
+            ]
+        );
+        this.particleSizes = new Map
+        (
+            [
+                ['electron', 0.075],
+                ['nucleon', 1]
+            ]
+        );
+        this.particleSpeeds = new Map
+        (
+            [
+                ['electron', 0.5],
+            ]
+        );
+
+        this.electrons1
+        this.electrons2;
+
     }
 
     init()
@@ -20,27 +47,87 @@ class App
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
 
-        const sphereGeometry = new THREE.SphereGeometry(1, 64, 64);
-        const sphereMaterial = new THREE.MeshPhongMaterial
+        const nucleonGeometry = new THREE.SphereGeometry(this.particleSizes.get('nucleon'), 64, 64);
+        const electronGeometry = new THREE.SphereGeometry(this.particleSizes.get('electron'), 64, 64);
+        const protonMaterial = new THREE.MeshLambertMaterial
         (
             {color: 0xff0032},
 			{emissive: 0x072534},
 			{side: THREE.DoubleSide},
 			{flatShading: false},
         );
-        const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-
-        const torusGeometry = new THREE.TorusGeometry(10, 0.025)
-        const torusMaterial = new THREE.MeshBasicMaterial
+        const neutronMaterial = new THREE.MeshLambertMaterial
+        (
+            {color: 0x0032ff},
+            {emissive: 0x072534},
+			{side: THREE.DoubleSide},
+			{flatShading: false},
+        )
+        const electronMaterial = new THREE.MeshBasicMaterial
         (
             {color: 0x37ff37}
+        );
+        const proton1 = new THREE.Mesh( nucleonGeometry, protonMaterial );
+        const neutron1 = new THREE.Mesh( nucleonGeometry, neutronMaterial );
+
+        const shell1Geometry = new THREE.TorusGeometry(
+            this.torusRadii.get('sub1'),
+            0.025,
         )
-        const torus = new THREE.Mesh( torusGeometry, torusMaterial );
+        const shell2Geometry = new THREE.TorusGeometry(
+            this.torusRadii.get('sub2'),
+            0.025
+        )
+        const shellMaterial = new THREE.MeshBasicMaterial
+        (
+            {color: 0xffffff}
+        )
+        const torus1 = new THREE.Mesh( shell1Geometry, shellMaterial );
+        const torus2 = new THREE.Mesh( shell2Geometry, shellMaterial );
 
-        const group = new THREE.Group();
-        group.add(sphere, torus);
+        this.electrons1 = new THREE.Group();
+        for (let i = 0; i < 2; i++)
+        {
+            const electron = new THREE.Mesh( electronGeometry, electronMaterial);
+            let angle = (i / 2) * Math.PI * 2;
+            let orbitX = Math.cos(angle) * this.torusRadii.get('sub1');
+            let orbitZ = Math.sin(angle) * this.torusRadii.get('sub1');
+            electron.position.set(orbitX, 0, orbitZ);
+            this.electrons1.add(electron);
+        }
 
-        this.scene.add( group );
+        const shell1 = new THREE.Group();
+        shell1.add(torus1, this.electrons1);
+        this.electrons1.rotation.x += Math.PI / 2
+        shell1.rotation.x += Math.PI / 2;
+
+        this.electrons2 = new THREE.Group();
+        for (let i = 0; i < 8; i++)
+        {
+            const electron = new THREE.Mesh( electronGeometry, electronMaterial);
+            let angle = (i / 8) * Math.PI * 2;
+            let orbitX = Math.cos(angle) * this.torusRadii.get('sub2');
+            let orbitZ = Math.sin(angle) * this.torusRadii.get('sub2');
+            electron.position.set(orbitX, 0, orbitZ);
+            this.electrons2.add(electron);
+        }
+
+        const shell2 = new THREE.Group();
+        shell2.add(torus2, this.electrons2);
+        this.electrons2.rotation.x += Math.PI / 2;
+        shell2.rotation.x += Math.PI / 2;
+
+        const nucleus = new THREE.Group();
+        nucleus.add(proton1);
+        nucleus.add(neutron1);
+
+        proton1.position.x -= 0.75;
+        neutron1.position.x += 0.75;
+
+        const atom = new THREE.Group();
+        atom.add(nucleus, shell1, shell2);
+
+        this.scene.add(atom);
         this.scene.background = new THREE.Color( 0x333333 );
 
         window.addEventListener( 'resize', this.onWindowResize, false );
@@ -48,27 +135,13 @@ class App
         const controls = new OrbitControls( this.camera, this.renderer.domElement );
 
         this.initLight();
-        animate();
+        this.animate();
     }
 
     initLight()
 	{
-		// const lights = [];
 
-		// for (let i = 0; i < 3; i ++)
-		// {
-		// 	lights.push( new THREE.DirectionalLight( 0xffffff, 0.75 ) );
-		// }
-		// 	lights[ 0 ].position.set( 0, 200, 0 );
-		// 	lights[ 1 ].position.set( 100, 200, 100 );
-		// 	lights[ 2 ].position.set( - 100, - 200, - 100 );
-
-		// for (let i = 0; i < lights.length; i++)
-		// {
-		// 	this.scene.add(lights[i]);
-		// }
-
-        const spotLight = new THREE.SpotLight( 0xffffff, 10, 0, Math.pi);
+        const spotLight = new THREE.SpotLight( 0xffffff, 15, 0, Math.PI);
         spotLight.position.set(2, 3.5, 0)
         this.scene.add(spotLight);
 
@@ -82,13 +155,29 @@ class App
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-}
 
-function animate()
-{
+    animate() {
 
-	requestAnimationFrame( animate );
-	app.renderer.render( app.scene, app.camera );
+        let time = Date.now() * 0.001;
+
+        requestAnimationFrame(this.animate);
+        this.renderer.render(this.scene, this.camera);
+
+        this.electrons2.children.forEach((object, index) => {
+            let angle = (index / 8) * Math.PI * 2;
+            let orbitX = Math.cos(time * this.particleSpeeds.get('electron') + angle) * this.torusRadii.get('sub2');
+            let orbitZ = Math.sin(time * this.particleSpeeds.get('electron') + angle) * this.torusRadii.get('sub2');
+
+            object.position.set(orbitX, 0, orbitZ);
+        });
+        this.electrons1.children.forEach((object, index) => {
+            let angle = (index / 2) * Math.PI * 2;
+            let orbitX = Math.cos(time * this.particleSpeeds.get('electron') + angle) * this.torusRadii.get('sub1');
+            let orbitZ = Math.sin(time * this.particleSpeeds.get('electron') + angle) * this.torusRadii.get('sub1');
+
+            object.position.set(orbitX, 0, orbitZ);
+        });
+    }
 }
 
 const app = new App();
