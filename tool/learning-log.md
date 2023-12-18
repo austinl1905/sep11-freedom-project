@@ -64,6 +64,14 @@ Groups:
 - Spot Light: Sort of like directional light but better. Takes in color and intensity as arguments just like other lights
 - Torus Geometry: donuts are toruses apparently. Will be useful when I make my electron shell representations
 
+12/17/23
+
+- Figured out how to make stuff rotate about a point
+- Figured out how to use loops to make multiple objects and rotate them
+Next steps:
+- clean up the code (seriously i can barely read this but i barely have any time to refactor it right now)
+- Figure out how to efficiently add "protons" and "electrons" to my "nucleus"
+
 <!--
 * Links you used today (websites, videos, etc)
 * Things you tried, progress you made, etc
