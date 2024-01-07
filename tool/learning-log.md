@@ -79,3 +79,14 @@ Next steps:
 * Questions you still have
 * What you're going to try next
 -->
+
+12/31/23
+
+So at this point Im kinda at a roadblock. bc I figured out how to make the orbits for electrons work and all that cool stuff buuuut theres still the nucleus. which is the hardest part. because theres lots of stuff that goes into it. How big the nucleus is, how im going to position the spheres inside the nucleus. Ive tried stuff like using instanced meshes and I have the basic idea of using a dummy mesh to position each sphere but the problem is how im going to position it, and how I can make it dynamic enough to adjust the size of the dummy for each different element.
+
+1/7/24
+
+POTENTIAL SOLUTION!!!!:
+https://stackoverflow.com/questions/36317734/calculating-individual-spheres-position-to-create-a-sphere-made-of-spheres
+
+Using cannon js (which is a lightweight physics engine) to position my spheres and stuff

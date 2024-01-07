@@ -43,6 +43,8 @@ class App
     init()
     {
         this.camera.position.z = 25;
+        this.camera.position.y = 5;
+        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
@@ -180,6 +182,7 @@ class App
 
             object.position.set(orbitX, 0, orbitZ);
         });
+
     }
 }
 
