@@ -47,34 +47,10 @@ class App
         const geometry = new THREE.SphereGeometry(radius, 64, 64);
         const instancedGeometry = new THREE.SphereGeometry(smallSphereRadius, 64, 64);
 
-        // const dummy = new THREE.Mesh(geometry, material);
-        // dummy.visible = false;
-        // this.scene.add(dummy);
-
-        const spherePosition = new THREE.Vector3();
-
         const instancedMesh = new THREE.InstancedMesh(instancedGeometry, material, numSpheres);
 
-        const matrix = new THREE.Matrix4();
-        for (let i = 0; i < numSpheres; i++)
-        {
-            const polar = Math.acos(-1 + (2 * i) / numSpheres);
-            const azimuthal = Math.sqrt(numSpheres * Math.PI) * polar;
-
-            const position = this.getSphericalCoordinates(radius - smallSphereRadius, polar, azimuthal);
-
-            // Set the position and scale for each instance
-            matrix.identity;
-            matrix.makeTranslation(position.x, position.y, position.z);
-            matrix.makeScale(1, 1, 1); // You can adjust the scale if needed
-            instancedMesh.setMatrixAt(i, matrix);
-        }
-
-
-        instancedMesh.instanceMatrix.needsUpdate = true;
         this.scene.add(instancedMesh);
 
-        // something something trigonometry lollllllllllll
 
         window.addEventListener( 'resize', this.onWindowResize, false );
 

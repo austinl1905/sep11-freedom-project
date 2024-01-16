@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as CANNON from 'cannon-es';
 
 class App
 {
@@ -80,10 +81,7 @@ class App
             this.torusRadii.get('sub2'),
             0.025
         )
-        const shellMaterial = new THREE.MeshBasicMaterial
-        (
-            {color: 0xffffff}
-        )
+        const shellMaterial = new THREE.MeshBasicMaterial();
         const torus1 = new THREE.Mesh( shell1Geometry, shellMaterial );
         const torus2 = new THREE.Mesh( shell2Geometry, shellMaterial );
 
@@ -188,3 +186,5 @@ class App
 
 const app = new App();
 app.init();
+
+
