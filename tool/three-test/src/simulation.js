@@ -15,11 +15,10 @@ class App
         this.renderer = new THREE.WebGLRenderer();
         this.onWindowResize = this.onWindowResize.bind(this);
         this.animate = this.animate.bind(this);
-        this.pullOrigin = this.pullOrigin.bind(this);
         this.world = new CANNON.World
         (
             {
-                gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
+                gravity: new CANNON.Vec3(0, 0, 0), // m/s²
             }
         )
         this.sphereMesh;
@@ -30,23 +29,16 @@ class App
                 shape: new CANNON.Plane()
             }
         );
-        this.sphereBody = new CANNON.Body
-        (
-            {
-                mass: 5,
-                shape: new CANNON.Sphere(1)
-            }
-        );
-        this.cannonDebugger = new CannonDebugger(this.scene, this.world, {color:0xff0000})
-    }
-
-    pullOrigin(body)
-    {
-        body.force.set(
-            -body.position.x,
-            -body.position.y,
-            -body.position.z
-        );
+        // this.sphereBody = new CANNON.Body
+        // (
+        //     {
+        //         mass: 5,
+        //         shape: new CANNON.Sphere(1)
+        //     }
+        // );
+        this.cannonDebugger = new CannonDebugger(this.scene, this.world, {color:0xff0000});
+        this.sphereMeshes = [];
+        this.sphereBodies = [];
     }
 
     init()
@@ -68,11 +60,11 @@ class App
 
         const controls = new OrbitControls( this.camera, this.renderer.domElement );
 
-        const radius = 1;
-        const geometry = new THREE.SphereGeometry(radius);
+        // const radius = 1;
+        // const geometry = new THREE.SphereGeometry(radius);
         const material = new THREE.MeshNormalMaterial({color: 0xffffff, side: THREE.DoubleSide});
-        this.sphereMesh = new THREE.Mesh(geometry, material);
-        this.scene.add(this.sphereMesh);
+        // this.sphereMesh = new THREE.Mesh(geometry, material);
+        // this.scene.add(this.sphereMesh);
 
         const planeGeometry = new THREE.PlaneGeometry(30, 30);
         const planeMesh = new THREE.Mesh(planeGeometry, material);
@@ -84,21 +76,35 @@ class App
         this.groundBody.position.set(0, -10, 0)
         this.world.addBody(this.groundBody);
 
-        this.world.addBody(this.sphereBody);
+        // this.world.addBody(this.sphereBody);
+
+        for (let i = 0; i < 5; i++)
+        {
+            const sphereBody = new CANNON.Body
+            (
+                {
+                    mass: 5,
+                    shape: new CANNON.Sphere(1),
+                    position: new CANNON.Vec3(Math.random() * 10 - 5, 5, Math.random() * 10 - 5, Math.random() * 10 - 5),
+                }
+            );
+
+            const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+
+            this.scene.add(sphereMesh);
+            this.world.addBody(sphereBody);
+
+            this.sphereMeshes.push(sphereMesh);
+            this.sphereBodies.push(sphereBody);
+        }
 
         this.initLight();
         this.animate();
 
-        console.log(this.world.bodies);
     }
 
     initLight()
 	{
-
-        const spotLight = new THREE.SpotLight( 0xffffff, 15, 0, Math.PI);
-        spotLight.position.set(2, 3.5, 0)
-        this.scene.add(spotLight);
-
 		const ambientLight = new THREE.AmbientLight( 0xffffff , 0.75 );
 		this.scene.add( ambientLight );
 	}
@@ -110,11 +116,18 @@ class App
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    animate() {
+    animate()
+    {
+        // this.sphereMesh.position.copy(this.sphereBody.position);
+        // this.sphereMesh.quaternion.copy(this.sphereBody.quaternion);
 
-        this.pullOrigin(this.sphereBody);
-        this.sphereMesh.position.copy(this.sphereBody.position);
-        this.sphereMesh.quaternion.copy(this.sphereBody.quaternion);
+        for (let i = 0; i < this.sphereBodies.length; i++)
+        {
+            this.sphereMeshes[i].position.copy(this.sphereBodies[i].position);
+            this.sphereMeshes[i].quaternion.copy(this.sphereBodies[i].quaternion);
+            pullOrigin(this.sphereBodies[i]);
+        }
+
         requestAnimationFrame(this.animate);
         this.renderer.render(this.scene, this.camera);
         this.world.fixedStep();
@@ -125,3 +138,13 @@ class App
 
 const app = new App();
 app.init();
+
+function pullOrigin(body)
+{
+    body.force.set
+    (
+        -body.position.x * 10,
+        -body.position.y * 10,
+        -body.position.z * 10
+    );
+}

@@ -90,3 +90,49 @@ POTENTIAL SOLUTION!!!!:
 https://stackoverflow.com/questions/36317734/calculating-individual-spheres-position-to-create-a-sphere-made-of-spheres
 
 Using cannon js (which is a lightweight physics engine) to position my spheres and stuff
+
+1/15/24
+wdjdawJV VNJMASDJK WE 89
+
+ok
+
+so as it turns out its like realllll difficult do that funny sphere stuff without a physics engine. LUCKILYT for me!! i can use cannon js
+
+so heres a rundown of all the cool stuff you can do
+
+- three and cannon can be used in conjuction if you copy the quaternions (???) and position of the physics body to the rendering mesh. GOOD STUFF!
+- gravity is going to be real important in order to figure out how to shove all those spheres in one place
+
+im sure theres more. cant find any tutorials though
+
+and some things to figure out
+
+- i have no idea if cannon-es (the one thats actually being updated) and cannon (the og) are compatible with each other. i guess ill hve to figuire it out the hard way
+- making instanced meshes work with physics
+
+and mueller i promise as soon as I get this stupid thing to work itll be smooth sailing with the css and stuff
+
+1/28/24
+
+physics adds like a whole new layer of complication I hate this
+
+- i learned how to add multiple meshes copied to sphere bodies. You have to combine loops with recursion. It's kinda weird
+
+Now, using this function and calling it on the sphere bodies in my animate function:
+
+```function pullOrigin(body)
+{
+    body.force.set
+    (
+        -body.position.x,
+        -body.position.y,
+        -body.position.z
+    );
+}
+```
+
+I kind of got it to work. The spheres are kinda getting pulled to the center. It's not like super perfect or anything but iots progress
+
+because heres the thing: the spheres kinda hover around for a bit and never fully stabilize near the origin (also its not really forming a big sphere at this point, more like just a plane)
+
+and yeah even if i use a scaling factor to increase the gravitational force by like 10 trillion this effect still persists. why? i dont know becauase i never took physics
