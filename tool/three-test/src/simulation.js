@@ -106,6 +106,7 @@ class App
                     mass: 5,
                     shape: new CANNON.Sphere(1),
                     position: new CANNON.Vec3(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5),
+                    // position: new CANNON.Vec3(0, 0, 0)
                 }
             );
 

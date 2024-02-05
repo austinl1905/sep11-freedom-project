@@ -136,3 +136,25 @@ I kind of got it to work. The spheres are kinda getting pulled to the center. It
 because heres the thing: the spheres kinda hover around for a bit and never fully stabilize near the origin (also its not really forming a big sphere at this point, more like just a plane)
 
 and yeah even if i use a scaling factor to increase the gravitational force by like 10 trillion this effect still persists. why? i dont know becauase i never took physics
+
+2/1/24
+
+k it looks a little more like a sphere I just had to randomize the y position of the balls woohooooo
+
+2/4/24
+
+using a for loop I can use a conditional to make my meshes either "protons" or "neutrons". the problem is that this isn't very dynamic so it wil only work as a temporary solution.
+
+atoms look alright as long as they have a lot of spheres in them but when you get to smaller atoms it gets wonkier because of the magnitutde of the force pulling them everywhere.
+
+<video src="three-test/large_atom_demonstration.mp4" controls title="Large Atom"></video>
+
+like look at this. atom for iodine. ok its a bit wobbly but it doesnt really move that much
+
+<video src="three-test/small_atom_demonstration.mp4" controls title="Small Atom"></video>
+
+then theres this. oxygen. you can clearly see it getting tossed around alot. not good
+
+on the bright side... i figured out how to adjust the shininess of my meshes.... so they look a bit better at least...
+
+soooo i guess from here it would be the most sensible thing to decide how to put the different things i've learned into a single coherent and functional project (after i fix the physics arghh)
