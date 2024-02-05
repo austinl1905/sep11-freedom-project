@@ -36,7 +36,7 @@ class App
         //         shape: new CANNON.Sphere(1)
         //     }
         // );
-        this.cannonDebugger = new CannonDebugger(this.scene, this.world, {color:0xff0000});
+        // this.cannonDebugger = new CannonDebugger(this.scene, this.world, {color:0xff0000});
         this.sphereMeshes = [];
         this.sphereBodies = [];
     }
@@ -60,9 +60,24 @@ class App
 
         const controls = new OrbitControls( this.camera, this.renderer.domElement );
 
+        // const neutronTexture = new THREE.TextureLoader().load( "../img/ca39.png" );
+        // const protonTexture = new THREE.TextureLoader().load( "../img/ca40.png" );
+        // neutronTexture.wrapS = THREE.RepeatWrapping;
+        // protonTexture.wrapS = THREE.RepeatWrapping;
+        // neutronTexture.wrapT = THREE.RepeatWrapping;
+        // protonTexture.wrapT = THREE.RepeatWrapping;
+        // neutronTexture.repeat.set( 2, 1 );
+        // protonTexture.repeat.set( 2, 1 );
+
         // const radius = 1;
         // const geometry = new THREE.SphereGeometry(radius);
         const material = new THREE.MeshNormalMaterial({color: 0xffffff, side: THREE.DoubleSide});
+        const neutronMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff, side: THREE.DoubleSide, shininess: 1, specular: 0xffffff});
+        // neutronMaterial.shininess = 100;
+        // neutronMaterial.specular = 0xffffff;
+        const protonMaterial = new THREE.MeshPhongMaterial({color: 0xff0000, side: THREE.DoubleSide, shininess: 1, specular: 0xffffff});
+        // protonMaterial.shininess = 100;
+        // protonMaterial.specular = 0xffffff;
         // this.sphereMesh = new THREE.Mesh(geometry, material);
         // this.scene.add(this.sphereMesh);
 
@@ -78,18 +93,32 @@ class App
 
         // this.world.addBody(this.sphereBody);
 
-        for (let i = 0; i < 5; i++)
+        let nNucleons = 127
+        // let nNucleons = 16;
+        let nNeutrons = 74;
+        // let nNeutrons = 8;
+
+        for (let i = 0; i < nNucleons; i++)
         {
             const sphereBody = new CANNON.Body
             (
                 {
                     mass: 5,
                     shape: new CANNON.Sphere(1),
-                    position: new CANNON.Vec3(Math.random() * 10 - 5, 5, Math.random() * 10 - 5, Math.random() * 10 - 5),
+                    position: new CANNON.Vec3(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5),
                 }
             );
 
-            const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+            let sphereMesh;
+
+            if (i < nNeutrons)
+            {
+                sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(1), neutronMaterial);
+            }
+            else
+            {
+                sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(1), protonMaterial);
+            }
 
             this.scene.add(sphereMesh);
             this.world.addBody(sphereBody);
@@ -105,8 +134,20 @@ class App
 
     initLight()
 	{
-		const ambientLight = new THREE.AmbientLight( 0xffffff , 0.75 );
+		const ambientLight = new THREE.AmbientLight( 0xffffff , 0.05 );
 		this.scene.add( ambientLight );
+
+        const spotLight = new THREE.SpotLight(0xffffff,  500);
+        spotLight.position.set( 10, 20, 15 );
+        spotLight.angle = Math.PI * Math.pow(10, -1);
+        spotLight.penumbra = 1;
+        spotLight.decay = 2;
+	    spotLight.distance = 0;
+        this.scene.add( spotLight );
+
+        const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+        this.scene.add( spotLightHelper );
+        // console.log(Math.PI * Math.pow(10, -1));
 	}
 
     onWindowResize()
@@ -131,7 +172,7 @@ class App
         requestAnimationFrame(this.animate);
         this.renderer.render(this.scene, this.camera);
         this.world.fixedStep();
-        this.cannonDebugger.update();
+        // this.cannonDebugger.update();
 
     }
 }
@@ -143,8 +184,10 @@ function pullOrigin(body)
 {
     body.force.set
     (
-        -body.position.x * 10,
-        -body.position.y * 10,
-        -body.position.z * 10
+        -body.position.x * 100,
+        -body.position.y * 100,
+        -body.position.z * 100
     );
 }
+
+javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='https://mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()
