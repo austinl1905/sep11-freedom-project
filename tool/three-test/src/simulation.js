@@ -21,7 +21,7 @@ class App
                 gravity: new CANNON.Vec3(0, 0, 0), // m/s²
             }
         )
-        this.sphereMesh;
+        this.anchorProtonMesh;
         this.groundBody = new CANNON.Body
         (
             {
@@ -29,13 +29,14 @@ class App
                 shape: new CANNON.Plane()
             }
         );
-        // this.sphereBody = new CANNON.Body
-        // (
-        //     {
-        //         mass: 5,
-        //         shape: new CANNON.Sphere(1)
-        //     }
-        // );
+        this.anchorProtonBody = new CANNON.Body
+        (
+            {
+                mass: 5,
+                type: CANNON.Body.STATIC,
+                shape: new CANNON.Sphere(1)
+            }
+        );
         // this.cannonDebugger = new CannonDebugger(this.scene, this.world, {color:0xff0000});
         this.sphereMeshes = [];
         this.sphereBodies = [];
@@ -72,10 +73,10 @@ class App
         // const radius = 1;
         // const geometry = new THREE.SphereGeometry(radius);
         const material = new THREE.MeshNormalMaterial({color: 0xffffff, side: THREE.DoubleSide});
-        const neutronMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff, side: THREE.DoubleSide, shininess: 1, specular: 0xffffff});
+        const neutronMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff, side: THREE.DoubleSide, shininess: 3, specular: 0xffffff, wireframe: true});
         // neutronMaterial.shininess = 100;
         // neutronMaterial.specular = 0xffffff;
-        const protonMaterial = new THREE.MeshPhongMaterial({color: 0xff0000, side: THREE.DoubleSide, shininess: 1, specular: 0xffffff});
+        const protonMaterial = new THREE.MeshPhongMaterial({color: 0xff0000, side: THREE.DoubleSide, shininess: 3, specular: 0xffffff, wireframe: true});
         // protonMaterial.shininess = 100;
         // protonMaterial.specular = 0xffffff;
         // this.sphereMesh = new THREE.Mesh(geometry, material);
@@ -87,18 +88,20 @@ class App
         planeMesh.position.y -= 10;
         this.scene.add(planeMesh);
 
+        this.anchorProtonMesh = new THREE.Mesh(new THREE.SphereGeometry(1), protonMaterial);
+        this.scene.add(this.anchorProtonMesh);
+        this.world.addBody(this.anchorProtonBody);
+
         this.groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
         this.groundBody.position.set(0, -10, 0)
         this.world.addBody(this.groundBody);
 
         // this.world.addBody(this.sphereBody);
 
-        let nNucleons = 127
-        // let nNucleons = 16;
-        let nNeutrons = 74;
-        // let nNeutrons = 8;
+        let nNucleons = 40;
+        let nNeutrons = 22;
 
-        for (let i = 0; i < nNucleons; i++)
+        for (let i = 0; i < nNucleons - 1; i++)
         {
             const sphereBody = new CANNON.Body
             (
@@ -109,6 +112,13 @@ class App
                     // position: new CANNON.Vec3(0, 0, 0)
                 }
             );
+
+            // sphereBody.addEventListener
+            // ("collide", function()
+            //     {
+            //         sphereBody.type = CANNON.Body.STATIC;
+            //     }
+            // )
 
             let sphereMesh;
 
@@ -160,8 +170,8 @@ class App
 
     animate()
     {
-        // this.sphereMesh.position.copy(this.sphereBody.position);
-        // this.sphereMesh.quaternion.copy(this.sphereBody.quaternion);
+        this.anchorProtonMesh.position.copy(this.anchorProtonBody.position);
+        this.anchorProtonMesh.quaternion.copy(this.anchorProtonBody.quaternion);
 
         for (let i = 0; i < this.sphereBodies.length; i++)
         {

@@ -158,3 +158,32 @@ then theres this. oxygen. you can clearly see it getting tossed around alot. not
 on the bright side... i figured out how to adjust the shininess of my meshes.... so they look a bit better at least...
 
 soooo i guess from here it would be the most sensible thing to decide how to put the different things i've learned into a single coherent and functional project (after i fix the physics arghh)
+
+2/5/24
+
+tried adding an "anchor" proton to try to fix the bouncing around ... it kinda works but theres still a lot of spheres moving around the anchor itself
+
+tried this event listener that would change the body type of the spheres to "Static" on collision, stopping them from moving around after they form the nucleus. this doesn't really work because if spheres collide on the way to the center they stop moving, creating a figure that doesn't resemble a sphere at all
+
+```
+sphereBody.addEventListener
+("collide", function()
+    {
+        sphereBody.type = CANNON.Body.STATIC;
+    }
+)
+```
+
+3/3/24
+
+YOU NEED DAMPING TO FIX THE PERPETUAL MOTION
+
+its not my fault i never learned physics ;(
+
+no more dumb anchor bodies i suppose
+
+also.... Refactored a LOT of my code with classes (see src/modules/obj.js). Everything you could possibly think of is a class now. Protons, electrons, neutrons, managers, managers for managers, apps, you get the idea
+
+still working on a way to dynamically add electrons - there are things called valence shells so you can assume that shells below the valence shells are always completle filled with electrons - which will be a VERY helpful assumptiomn when it comes around to doing that
+
+though my refactored code is up to 358 lines of code and im not even done yet ... I better modularize this before it turns into a big mess
