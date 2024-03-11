@@ -63,95 +63,41 @@ class Electron
     }
 }
 
-class AbstractElectronShell
-{   constructor(valence)
-    {   this.electrons = initElectrons();   }
-
-    initElectrons()
-    {   let electrons = [];
-        for (let i = 1; i <= valence; i++)
-        {   electrons.push( new Electron() )   }
-        return electrons;
-    }
-}
-
-class ElectronShellP1 extends AbstractElectronShell
-{   constructor(valence)
+class ElectronShellP1
+{   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(),
-
+        (   new THREE.TorusGeometry(12, 0.025),
+            new THREE.MeshBasicMaterial()
         )
     }
 }
 
-class ElectronShellP2 extends AbstractElectronShell
+class ElectronShellP2
 {
 }
 
-class ElectronShellP3 extends AbstractElectronShell
+class ElectronShellP3
 {
 }
 
-class ElectronShellP4 extends AbstractElectronShell
+class ElectronShellP4
 {
 }
 
-class ElectronShellP5 extends AbstractElectronShell
+class ElectronShellP5
 {
 }
 
-class ElectronShellP6 extends AbstractElectronShell
+class ElectronShellP6
 {
 }
 
-class ElectronShellP7 extends AbstractElectronShell
+class ElectronShellP7
 {
-}
-
-class AbstractElectronShellManager
-{   constructor()
-    {
-
-    }
-}
-
-class ElectronShellP1Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP2Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP3Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP4Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP5Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP6Manager extends AbstractElectronShellManager
-{
-
-}
-
-class ElectronShellP7Manager extends AbstractElectronShellManager
-{
-
 }
 
 class AbstractAtom
-{   constructor( name, atomicNum, atomicMass, valenceElectrons)
+{   constructor( name, atomicNum, atomicMass, valenceElectrons )
     {   this.atomicNum = atomicNum;
         this.atomicMass = atomicMass;
         this.valenceElectrons = valenceElectrons;
@@ -175,9 +121,22 @@ class AbstractAtom
 }
 
 class ConcreteAtomP1 extends AbstractAtom
-{
+{   constructor( name, atomicNum, atomicMass, valenceElectrons )
+    {   super( name, atomicNum, atomicMass, valenceElectrons );
+        this.electronShell = new ElectronShellP1().mesh;
+        this.valenceElectronMeshes = this.initElectrons();
+    }
+
     initElectrons()
-    {   let electronShellP1 = new ElectronShellP1(this.valenceElectrons);
+    {   let electrons = [];
+        for (let i = 0; i < this.valenceElectrons; i++)
+        {   electrons.push( new Electron() );
+            let angle = (i / this.valenceElectrons)  * Math.PI * this.valenceElectrons;
+            let orbitX = Math.cos(angle) * 12;
+            let orbitZ = Math.sin(angle) * 12;
+            electrons[i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+        return electrons;
     }
 }
 
@@ -225,10 +184,8 @@ class AbstractAtomManager
         }
     }
 
-    createElectronShell( scene, world )
-    {
-
-    }
+    createElectrons( scene )
+    {    throw new Error( 'createElectrons not implemented in base class.' );   }
 
     copy()
     {   for ( let i = 0; i < this.atom.nucleons.length; i++ )
@@ -246,11 +203,28 @@ class AbstractAtomManager
             )
         }
     }
+
+    initiateElectronRotation()
+    {   throw new Error( 'initiateElectronRotation not implemented in base class.' );    }
 }
 
 class ConcreteAtomP1Manager extends AbstractAtomManager
-{
+{   createElectrons( scene )
+    {   this.atom.electronShell.rotation.x += Math.PI / 2;
+        scene.add(this.atom.electronShell);
+        for (let i = 0; i < this.atom.valenceElectronMeshes.length; i++)
+        {   scene.add(this.atom.valenceElectronMeshes[i].mesh);   }
+    }
 
+    initiateElectronRotation()
+    {   let time = Date.now() * 0.001;
+        for (let i = 0; i < this.atom.valenceElectronMeshes.length; i++)
+        {   let angle = (i / this.atom.valenceElectronMeshes.length) * Math.PI * 2;
+            let orbitX = Math.cos(time * 0.5 + angle) * 12;
+            let orbitZ = Math.sin(time * 0.5 + angle) * 12;
+            this.atom.valenceElectronMeshes[i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+    }
 }
 
 class ConcreteAtomP2Manager extends AbstractAtomManager
@@ -284,8 +258,8 @@ class ConcreteAtomP7Manager extends AbstractAtomManager
 }
 
 let manager = new ConcreteAtomP1Manager( new ConcreteAtomP1( 'Helium', 2, 4, 2 ) );
-manager = new ConcreteAtomP2Manager( new ConcreteAtomP2( 'Lithium', 3, 7, 1) );
-manager = new ConcreteAtomP5Manager( new ConcreteAtomP5( 'Iodine', 53, 127 ) );
+// manager = new ConcreteAtomP2Manager( new ConcreteAtomP2( 'Lithium', 3, 7, 1) );
+// manager = new ConcreteAtomP5Manager( new ConcreteAtomP5( 'Iodine', 53, 127 ) );
 // manager = new ConcreteAtomP7Manager( new ConcreteAtomP7( 'Oganesson', 118, 294) );
 
 class App
@@ -309,15 +283,15 @@ class App
     animate()
     {   requestAnimationFrame( this.animate );
         this.renderer.render( this.scene, this.camera );
+        manager.initiateElectronRotation();
         manager.copy();
         manager.pullOrigin();
         this.world.step( 1 / 60 );
+
     }
 
     init()
-    {   console.log( manager.atom );
-
-        this.camera.position.z = 25;
+    {   this.camera.position.z = 25;
         this.camera.position.y = 5;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
@@ -347,6 +321,7 @@ class App
         this.scene.background = new THREE.Color( 0x333333 );
 
         manager.createNucleus( this.scene, this.world );
+        manager.createElectrons( this.scene, this.world );
 
         this.animate();
     }
