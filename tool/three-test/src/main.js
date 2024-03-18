@@ -94,6 +94,7 @@ class App
             // Calculate the X and Z coordinates for the electron's position based on the angle
             let orbitX = Math.cos(angle) * this.torusRadii.get('sub1');
             let orbitZ = Math.sin(angle) * this.torusRadii.get('sub1');
+            console.log(orbitX);
             // Set the position of the electron in 3D space
             electron.position.set(orbitX, 0, orbitZ);
             this.electrons1.add(electron);
@@ -105,13 +106,15 @@ class App
         shell1.rotation.x += Math.PI / 2;
 
         this.electrons2 = new THREE.Group();
-        for (let i = 0; i < 8; i++)
+        for (let i = 0; i < 7; i++)
         {
             const electron = new THREE.Mesh( electronGeometry, electronMaterial);
-            let angle = (i / 8) * Math.PI * 2;
+            let angle = (i / 7) * Math.PI * 2;
             let orbitX = Math.cos(angle) * this.torusRadii.get('sub2');
             let orbitZ = Math.sin(angle) * this.torusRadii.get('sub2');
+            // console.log(orbitX);
             electron.position.set(orbitX, 0, orbitZ);
+            console.log(electron.position);
             this.electrons2.add(electron);
         }
 

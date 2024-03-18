@@ -187,3 +187,11 @@ also.... Refactored a LOT of my code with classes (see src/modules/obj.js). Ever
 still working on a way to dynamically add electrons - there are things called valence shells so you can assume that shells below the valence shells are always completle filled with electrons - which will be a VERY helpful assumptiomn when it comes around to doing that
 
 though my refactored code is up to 358 lines of code and im not even done yet ... I better modularize this before it turns into a big mess
+
+3/10/24
+
+worked on trying to add the methods and properties and stuff fo rthe electrons now that im donw with the nuclei
+
+successfully added support for the FIRST ELECTRON SHELL!!!! 6 MORE TO GO!!!!
+
+there hasn't been much 'learning' done recently .... just 'doing'... sooo dunno what to put here. refer to obj.js in the modules folder
