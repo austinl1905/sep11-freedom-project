@@ -69,7 +69,7 @@ class Neutron
 class Electron
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.SphereGeometry( 0.15, 32, 32 ),
+        (   new THREE.SphereGeometry( 0.2, 32, 32 ),
             new THREE.MeshBasicMaterial
             (   {   color: 0x37ff37   }   )
         )
@@ -79,7 +79,7 @@ class Electron
 class ElectronShellP1
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(12, 0.025),
+        (   new THREE.TorusGeometry(12, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -88,7 +88,7 @@ class ElectronShellP1
 class ElectronShellP2
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(17, 0.025),
+        (   new THREE.TorusGeometry(17, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -97,7 +97,7 @@ class ElectronShellP2
 class ElectronShellP3
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(22, 0.025),
+        (   new THREE.TorusGeometry(22, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -106,7 +106,7 @@ class ElectronShellP3
 class ElectronShellP4
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(27, 0.025),
+        (   new THREE.TorusGeometry(27, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -115,7 +115,7 @@ class ElectronShellP4
 class ElectronShellP5
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(32, 0.025),
+        (   new THREE.TorusGeometry(32, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -124,7 +124,7 @@ class ElectronShellP5
 class ElectronShellP6
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(37, 0.025),
+        (   new THREE.TorusGeometry(37, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -133,7 +133,7 @@ class ElectronShellP6
 class ElectronShellP7
 {   constructor()
     {   this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(42, 0.025),
+        (   new THREE.TorusGeometry(42, 0.05),
             new THREE.MeshBasicMaterial()
         )
     }
@@ -150,8 +150,7 @@ class AbstractAtom
     initNucleus()
     {   let nucleons = [];
         for ( let i = 0; i < this.atomicMass; i++ )
-        {
-            if ( i < this.atomicMass - this.atomicNum )
+        {   if ( i < this.atomicMass - this.atomicNum )
             {   nucleons.push( new Neutron() )   }
             else
             {   nucleons.push( new Proton() );   }
@@ -161,25 +160,33 @@ class AbstractAtom
 
     initElectrons()
     {   throw new Error( 'createElectrons not implemented in base class.' );  }
+
+    initShells()
+    {   throw new Error( 'createShells not implemented in base class.' );   }
 }
 
 class ConcreteAtomP1 extends AbstractAtom
 {   constructor( name, atomicNum, atomicMass, valenceElectrons )
     {   super( name, atomicNum, atomicMass, valenceElectrons );
-        this.electronShell = new ElectronShellP1().mesh;
+        this.electronShells = this.initShells()
         this.electrons = this.initElectrons();
     }
 
     initElectrons()
-    {   let electrons = [];
-        for (let i = 0; i < this.valenceElectrons; i++)
-        {   electrons.push( new Electron() );
-            let angle = (i / this.valenceElectrons)  * Math.PI * this.valenceElectrons;
+    {   let P1Electrons = [];
+        P1ElectronLoop: for (let i = 0; i < this.valenceElectrons; i++)
+        {   P1Electrons.push( new Electron() );
+            let angle = (i / this.valenceElectrons)  * Math.PI * 2;
             let orbitX = Math.cos(angle) * 12;
             let orbitZ = Math.sin(angle) * 12;
-            electrons[i].mesh.position.set(orbitX, 0, orbitZ);
+            P1Electrons[i].mesh.position.set(orbitX, 0, orbitZ);
         }
-        return electrons;
+        return P1Electrons;
+    }
+
+    initShells()
+    {   let electronShells = [ new ElectronShellP1().mesh ];
+        return electronShells;
     }
 }
 
@@ -261,8 +268,27 @@ class ConcreteAtomP3 extends AbstractAtom
 }
 
 class ConcreteAtomP4 extends AbstractAtom
-{
+{   constructor( name, atomicNum, atomicMass, valenceElectrons )
+    {   super( name, atomicNum, atomicMass, valenceElectrons );
+        this.electronShells = this.initShells();
+        this.electrons = this.initElectrons();
+    }
 
+    initShells()
+    {   let electronShells = [new ElectronShellP1().mesh, new ElectronShellP2().mesh, new ElectronShellP3().mesh, new ElectronShellP4().mesh];
+        return electronShells;
+    }
+
+    initElectrons()
+    {   let P1Electrons = [];
+        let P2Electrons = [];
+        let P3Electrons = [];
+        let P4Electrons = [];
+
+
+
+        return [P1Electrons, P2Electrons, P3Electrons, P4Electrons];
+    }
 }
 
 class ConcreteAtomP5 extends AbstractAtom
@@ -311,6 +337,18 @@ class AbstractAtomManager
                 -this.atom.nucleons[i].body.position.y * 10,
                 -this.atom.nucleons[i].body.position.z * 10,
             )
+        }
+    }
+
+    createElectrons( scene )
+    {   for (let i = 0; i < this.atom.electronShells.length; i++)
+        {   this.atom.electronShells[i].rotation.x += Math.PI / 2;
+            scene.add(this.atom.electronShells[i]);
+        }
+
+        for (let i = 0; i < this.atom.electrons.length; i++)
+        {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+            {   scene.add(this.atom.electrons[i][j].mesh);  }
         }
     }
 
@@ -407,8 +445,48 @@ class ConcreteAtomP3Manager extends AbstractAtomManager
 }
 
 class ConcreteAtomP4Manager extends AbstractAtomManager
-{
+{   createElectrons( scene )
+    {   for (let i = 0; i < this.atom.electronShells.length; i++)
+        {   this.atom.electronShells[i].rotation.x += Math.PI / 2;
+            scene.add(this.atom.electronShells[i]);
+        }
 
+        for (let i = 0; i < this.atom.electrons.length; i++)
+        {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+            {   scene.add(this.atom.electrons[i][j].mesh);  }
+        }
+    }
+
+    initiateElectronRotation()
+    {   let time = Date.now() * 0.001;
+        rotateP1Electrons: for (let i = 0; i < 2; i++)
+        {   let angle = (i / 2) * Math.PI * 2;
+            let orbitX = Math.cos(time * 0.5 + angle) * 12;
+            let orbitZ = Math.sin(time * 0.5 + angle) * 12;
+            this.atom.electrons[0][i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+
+        rotateP2Electrons: for (let i = 0; i < 8; i++)
+        {   let angle = (i / 8) * Math.PI * 2;
+            let orbitX = Math.cos(time * 0.5 + angle) * 17;
+            let orbitZ = Math.sin(time * 0.5 + angle) * 17;
+            this.atom.electrons[1][i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+
+        rotateP3Electrons: for (let i = 0; i < this.atom.electrons[2].length; i++)
+        {   let angle = (i / this.atom.electrons[2].length) * Math.PI * 2;
+            let orbitX = Math.cos(time * 0.5 + angle) * 22;
+            let orbitZ = Math.sin(time * 0.5 + angle) * 22;
+            this.atom.electrons[2][i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+
+        rotateP4Electrons: for ( let i = 0; i < this.atom.electrons[3].length; i++)
+        {   let angle = (i / this.atom.electrons[3].length) * Math.PI * 2;
+            let orbitX = Math.cos(time * 0.5 + angle) * 27;
+            let orbitZ = Math.sin(time * 0.5 + angle) * 27;
+            this.atom.electrons[3][i].mesh.position.set(orbitX, 0, orbitZ);
+        }
+    }
 }
 
 class ConcreteAtomP5Manager extends AbstractAtomManager
@@ -428,7 +506,9 @@ class ConcreteAtomP7Manager extends AbstractAtomManager
 
 // let manager = new ConcreteAtomP1Manager( new ConcreteAtomP1( 'Helium', 2, 4, 2 ) );
 // let manager = new ConcreteAtomP2Manager( new ConcreteAtomP2( 'Lithium', 3, 7, 1 ) );
-let manager = new ConcreteAtomP3Manager( new ConcreteAtomP3( 'Silicon', 14, 28, 4 ) );
+let manager = new ConcreteAtomP3Manager( new ConcreteAtomP3( 'Argon', 18, 40, 8 ) );
+// let manager = new ConcreteAtomP4Manager( new ConcreteAtomP4( 'Calcium', 20, 40, 2) );
+// let manager = new ConcreteAtomP4Manager( new ConcreteAtomP4( 'Bromine', 35, 80, 7) );
 // let manager = new ConcreteAtomP2Manager( new ConcreteAtomP2('Boron', 5, 11, 3) );
 // let manager = new ConcreteAtomP2Manager( new ConcreteAtomP2( 'Fluorine', 9, 19, 7 ) );
 // manager = new ConcreteAtomP5Manager( new ConcreteAtomP5( 'Iodine', 53, 127 ) );
