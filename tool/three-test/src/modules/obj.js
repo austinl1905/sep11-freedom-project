@@ -320,9 +320,6 @@ class AbstractAtomManager
         }
     }
 
-    createElectrons( scene )
-    {    throw new Error( 'createElectrons not implemented in base class.' );   }
-
     copy()
     {   for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   this.atom.nucleons[i].mesh.position.copy( this.atom.nucleons[i].body.position );
