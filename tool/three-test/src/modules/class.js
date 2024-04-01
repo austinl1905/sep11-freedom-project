@@ -3,8 +3,6 @@ import * as THREE from 'three';
 import CannonDebugger from 'cannon-es-debugger';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-
-
 // stupid debug function i got from chat gpt lollllllll
 // function getMeshesByColor(color, scene) {
 //     var meshes = [];
@@ -94,8 +92,8 @@ class Atom
         this.atomicMass = atomicMass;
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
         this.nucleons = this.initNucleus();
-        this.electrons = this.initElectrons().electrons;
-        this.electronShells = this.initElectrons().electronShells;
+        this.electrons = this.initElectrons()[1];
+        this.electronShells = this.initShells();
     }
 
     initNucleus()
@@ -109,34 +107,41 @@ class Atom
         return nucleons;
     }
 
-    initElectrons()
-    {   let electronData =
-        {   electronShells: [],
-            electrons: []
-        }
+    initShells()
+    {   let electronShells = [];
+        for (let i = 0; i < this.electrons.length; i++)
+        {   electronShells.push( new ElectronShell( 12 + (i * 5) ) );   }
+        return electronShells;
+    }
 
-        let configurationArray = this.electronConfigurationExtended.split(' ');
-        let maximumNumShells = 1;
+    initElectrons() // This code is atrocious and I'm sorry
+    {   const orbitals = this.electronConfigurationExtended.split(' ');
+        let electronNums = [];
+        let electronShellData = [];
+        let totalElectrons = 0;
 
-        for ( let i = 0; i < configurationArray.length; i++ )
-        {   if (configurationArray[i][0] > maximumNumShells)
-            {   maximumNumShells = configurationArray[i][0];   }
-        }
+        orbitals.forEach
+        (   (orbital) =>
+            {   const [shell, count] = orbital.match(/\d+/g);
+                const electronCount = parseInt(count);
+                totalElectrons += electronCount;
 
-        for ( let i = 0; i < maximumNumShells; i++ )
-        {   electronData.electronShells.push( new ElectronShell( 12 + ( i * 5 ) ) )
-            electrons.push([]);
-        }
+                // Update electron shell data
+                if ( electronShellData[shell] )
+                {   electronShellData[shell].push(...Array.from( { length: electronCount }, () => new Electron() ) );   }
+                else
+                {   electronShellData[shell] = Array.from( { length: electronCount }, () => new Electron() );   }
+            }
+        );
 
-        for( let i = 0; i < configurationArray.length; i++)
-        {   
+        // return
+        // {   totalElectrons: totalElectrons, // Dunno why I have this here but it might be useful later
+        //     electrons: electronShellData.slice(1) // This is so hacky but i dont want to fix it rn
+        // };
 
-        }
-
-        return electronData;
+        return [totalElectrons, electronShellData.slice(1)];
     }
 }
-
 /*
     - Adds nucleons, electrons, and electron shells to the nucleus when respective methods are called in the App init method
     - Handles the quaternion and position copying in the animation loop
@@ -162,13 +167,13 @@ class AtomManager
     // Initiation function
     createElectrons( scene )
     {   for (let i = 0; i < this.atom.electronShells.length; i++)
-        {   this.atom.electronShells[i].rotation.x += Math.PI / 2; // Set rotation to 90 degrees
-            scene.add(this.atom.electronShells[i]);
+        {   this.atom.electronShells[i].mesh.rotation.x += Math.PI / 2; // Set rotation to 90 degrees
+            scene.add(this.atom.electronShells[i].mesh);
         }
 
         for (let i = 0; i < this.atom.electrons.length; i++) // Iterate through multi-dimensional electron array and add them to the scene
         {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-            {   scene.add(this.atom.electrons[i][j].mesh);  }
+            {   scene.add(this.atom.electrons[i][j].mesh);   }
         }
     }
 
@@ -205,7 +210,7 @@ class AtomManager
     }
 }
 
-let manager = new AtomManager( new Atom('Argon', 18, 40, '1s2 2s2 2p6 3s2 3p6') );
+let manager = new AtomManager( new Atom('Iodine', 53, 127, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6') );
 
 class App
 {   constructor()

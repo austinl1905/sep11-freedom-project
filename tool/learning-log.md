@@ -195,3 +195,46 @@ worked on trying to add the methods and properties and stuff fo rthe electrons n
 successfully added support for the FIRST ELECTRON SHELL!!!! 6 MORE TO GO!!!!
 
 there hasn't been much 'learning' done recently .... just 'doing'... sooo dunno what to put here. refer to obj.js in the modules folder
+
+3/24/24
+
+THIS ISNT WORKINGGG!!!!!!!!!
+
+SEEING AS I ALREADY HAVE MY MVP DONE. ILL JUST BE DOING A LITTLE BIT OF REFACTORING BC FRANKLY WHAT I HAVE RN IS 600 LINES OF NONSENSE THAT ONLY WORKS BECAUSE I HAVENT TRIED ADDING ANYTHING STUPID YET
+
+for example I dont need a bunch of managers. with a little bit more math I made one manager that is compatible with every atom class
+```js
+initiateElectronRotation()
+    {   let time = Date.now() * 0.001;
+        for (let i = 0; i < this.atom.electrons.length; i++)
+        {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+            {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
+                let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                this.atom.electrons[i][j].mesh.position.set(orbitX, 0, orbitZ);
+            }
+        }
+    }
+```
+
+and I also made another realization. in terms of its 3d model, just how much does an atom really change? maybe I could have a single base class that takes in many arguments and uses those to make the atom. And i could get those arguments from an API for each element
+
+and i didnt really need a class for each electron shell either! just take in its radius as an argument too:
+
+```js
+class ElectronShell
+{   constructor(radius)
+    {   this.radius = radius;
+        this.mesh = new THREE.Mesh
+        (   new THREE.TorusGeometry(this.radius, 0.05),
+            new THREE.MeshBasicMaterial()
+        )
+    }
+}
+```
+
+4/1/24
+
+mr mueller. i dont know why the last learning log entry didnt push but i swear i did it.
+
+anywaysy. I finally figured out a more dynamic way to add my electrons. saves a ton of code and it's way more efficient. check class.js in the modules folder
