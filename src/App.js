@@ -80,7 +80,7 @@ class Atom
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
         this.nucleons = this.initNucleus();
         this.electrons = this.initElectrons();
-        this.electronShells = this.initShells();
+        this.bohrElectronShells = this.initBohrShells();
     }
 
     initNucleus()
@@ -95,7 +95,7 @@ class Atom
     }
 
     // Because I couldn't figure out how to combine both methods. It's probably better this way anyways.
-    initShells()
+    initBohrShells()
     {   let electronShells = [];
         for (let i = 0; i < this.electrons.length; i++)
         {   electronShells.push( new ElectronShell( 12 + (i * 5) ) );   }
@@ -148,10 +148,10 @@ class AtomManager
     }
 
     // Initiation function
-    createElectrons( scene )
-    {   for (let i = 0; i < this.atom.electronShells.length; i++)
-        {   this.atom.electronShells[i].mesh.rotation.x += Math.PI / 2; // Set rotation to 90 degrees
-            scene.add(this.atom.electronShells[i].mesh);
+    createBohrElectrons( scene )
+    {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
+        {   this.atom.bohrElectronShells[i].mesh.rotation.x += Math.PI / 2; // Set rotation to 90 degrees
+            scene.add(this.atom.bohrElectronShells[i].mesh);
         }
 
         for ( let i = 0; i < this.atom.electrons.length; i++ ) // Iterate through multi-dimensional electron array and add them to the scene while setting their positions
@@ -185,7 +185,7 @@ class AtomManager
     }
 
     // Animation function
-    initiateElectronRotation()
+    initiateBohrElectronRotation()
     {   let time = Date.now() * 0.001;
         for (let i = 0; i < this.atom.electrons.length; i++)
         {   for (let j = 0; j < this.atom.electrons[i].length; j++)
@@ -222,7 +222,7 @@ class App
     animate()
     {   requestAnimationFrame( this.animate );
         this.renderer.render( this.scene, this.camera );
-        manager.initiateElectronRotation();
+        manager.initiateBohrElectronRotation();
         manager.copyNucleons();
         manager.pullOrigin();
         this.world.step( 1 / 60 );
@@ -230,14 +230,14 @@ class App
     }
 
     init()
-    {   this.camera.position.z = manager.atom.electronShells[manager.atom.electronShells.length - 1].radius + 30;
+    {   this.camera.position.z = manager.atom.bohrElectronShells[manager.atom.bohrElectronShells.length - 1].radius + 30;
         this.camera.position.y = 10;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
         // const axesHelper = new THREE.AxesHelper( 12 );
         // this.scene.add( axesHelper );
         this.controls.minDistance = 15;
-        this.controls.maxDistance = 150;
+        this.controls.maxDistance = manager.atom.bohrElectronShells[manager.atom.bohrElectronShells.length - 1].radius + 75;
         this.controls.enablePan = false;
         // console.log(this.controls);
 
@@ -264,7 +264,7 @@ class App
         // this.scene.background = new THREE.Color( 0x000000 );
 
         manager.createNucleus( this.scene, this.world );
-        manager.createElectrons( this.scene, this.world );
+        manager.createBohrElectrons( this.scene, this.world );
 
         this.animate();
     }

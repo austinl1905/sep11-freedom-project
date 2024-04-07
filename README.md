@@ -12,11 +12,13 @@ For my project, I chose to independently study **X** in order to help me make **
 
 [Presentation]()
 
+[Changelog](changelog.md)
+
 ## Implications
 ##### PROS
-* 
+*
 ##### CONS
-* 
+*
 
 
 ## Blog

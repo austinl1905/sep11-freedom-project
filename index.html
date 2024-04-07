@@ -4,26 +4,26 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <!-- CSS -->
         <link href="style.css" rel="stylesheet" type="text/css" />
-        <style>
-            /* CSS */
-            
-        </style>
-        
-        <title>Title</title>
+        <link rel="icon" type="image/x-icon" href="src/img/waterfavicon.png">
+        <title>Atom Simulation</title>
+        <script type="importmap">
+            {
+              "imports": {
+                "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/",
+                "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm",
+                "cannon-es-debugger": "https://cdn.jsdelivr.net/npm/cannon-es-debugger@1.0.0/+esm",
+                "cannon": "https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"
+              }
+            }
+          </script>
     </head>
     <body>
         <!-- HTML -->
-        
-        
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- <script src="script.js"></script> -->
-        <script>
-            // JS
-            
-            
-        </script>
+
+
+        <script src="src/App.js" type="module"></script>
     </body>
 </html>
