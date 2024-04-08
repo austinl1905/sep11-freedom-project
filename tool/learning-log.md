@@ -238,3 +238,11 @@ class ElectronShell
 mr mueller. i dont know why the last learning log entry didnt push but i swear i did it.
 
 anywaysy. I finally figured out a more dynamic way to add my electrons. saves a ton of code and it's way more efficient. check class.js in the modules folder
+
+4/7/24
+
+Learned how to modularize my code and finally transferred my code to the actual script for the project. it's going to serve as my foundation
+
+In the meantime I want to learn how to make GUIs with CSS and JS. No bootstrap because its just so easy to tell when a website uses it
+
+Also preparing for my beyond mvp wwhich involves more three js features
