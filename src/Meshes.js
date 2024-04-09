@@ -10,7 +10,7 @@ class Proton
                     side: THREE.DoubleSide,
                     shininess: 3,
                     specular: 0xffffff,
-                    // wireframe: true
+                    name: 'protonMesh'
                 }
             )
         );
@@ -18,11 +18,12 @@ class Proton
         this.body = new CANNON.Body
         (   {   mass: 1,
                 shape: new CANNON.Sphere( 1 ),
-                position: new CANNON.Vec3( Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5 )
+                position: new CANNON.Vec3( Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5 ),
+                name: 'protonBody',
+                linearDamping: 0.99,
+                angularDamping: 0.99
 		    }
         );
-        this.mesh.name = 'protonMesh';
-        this.body.name = 'protonBody';
     }
 }
 
@@ -35,7 +36,7 @@ class Neutron
                     side: THREE.DoubleSide,
                     shininess: 3,
                     specular: 0xffffff,
-                    // wireframe: true
+                    name: 'neutronMesh'
                 }
             ),
         );
@@ -43,11 +44,12 @@ class Neutron
         this.body = new CANNON.Body
         (   {   mass: 1,
                 shape: new CANNON.Sphere( 1 ),
-                position: new CANNON.Vec3( Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5 )
+                position: new CANNON.Vec3( Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5 ),
+                name: 'neutronBody',
+                linearDamping: 0.99,
+                angularDamping: 0.99
 		    }
         );
-        this.mesh.name = 'neutronMesh';
-        this.body.name = 'neutronBody';
     }
 }
 
@@ -66,8 +68,9 @@ class ElectronShell
     {   this.radius = radius;
         this.mesh = new THREE.Mesh
         (   new THREE.TorusGeometry(this.radius, 0.05),
-            new THREE.MeshBasicMaterial()
-        )
+            new THREE.MeshBasicMaterial(),
+        );
+        this.mesh.rotation.set(Math.PI / 2, 0, 0);
     }
 }
 

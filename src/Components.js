@@ -22,7 +22,7 @@ class Atom
         return nucleons;
     }
 
-    // The BohrAtomManager will actually add these shells to the scene. In the QuantumAtomManager, the radius of the shells are merely used as a reference for the camera distance.
+    // The BohrAtomManager will actually add these shells to the scene. In the QuantumAtomManager, the radius of the shells are merely used as a reference for the camera/controls distance.
     initBohrShells()
     {   let electronShells = [];
         for (let i = 0; i < this.electrons.length; i++)
@@ -68,10 +68,6 @@ class AbstractAtomManager
     {   for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   scene.add( this.atom.nucleons[i].mesh );
             world.addBody( this.atom.nucleons[i].body );
-
-            // Damping to avoid perpetual motion of bodies
-            this.atom.nucleons[i].body.linearDamping = 0.99;
-            this.atom.nucleons[i].body.angularDamping = 0.99;
         }
     }
 
@@ -93,6 +89,21 @@ class AbstractAtomManager
             )
         }
     }
+
+    removeAtom( scene, world )
+    {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
+        {   scene.remove(this.atom.bohrElectronShells[i].mesh);   }
+
+        for (let i = 0; i < this.atom.electrons.length; i++)
+        {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+            {   scene.remove(this.atom.electrons[i][j].mesh);   }
+        }
+
+        for ( let i = 0; i < this.atom.nucleons.length; i++ )
+        {   scene.remove( this.atom.nucleons[i].mesh );
+            world.removeBody( this.atom.nucleons[i].body );
+        }
+    }
 }
 
 /*
@@ -100,13 +111,13 @@ class AbstractAtomManager
 */
 class QuantumAtomManager extends AbstractAtomManager
 {   // Initiation Function
-    createQuantumElectrons( scene )
+    createElectrons( scene )
     {
 
     }
 
     // Animation function
-    initiateQuantumElectronMovement( scene )
+    initiateElectronMovement( scene )
     {
 
     }
@@ -118,9 +129,9 @@ class QuantumAtomManager extends AbstractAtomManager
 */
 class BohrAtomManager extends AbstractAtomManager
 {   // Initiation function
-    createBohrElectrons( scene )
+    createElectrons( scene )
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
-        {   this.atom.bohrElectronShells[i].mesh.rotation.x += Math.PI / 2; // Set rotation to 90 degrees
+        {   
             scene.add(this.atom.bohrElectronShells[i].mesh);
         }
 
@@ -136,7 +147,7 @@ class BohrAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    initiateBohrElectronRotation()
+    initiateElectronMovement()
     {   let time = Date.now() * 0.001;
         for (let i = 0; i < this.atom.electrons.length; i++)
         {   for (let j = 0; j < this.atom.electrons[i].length; j++)

@@ -15,10 +15,7 @@ All changes to this project from 2024-04-06 onwards are documented here.<hr>
 ### Added
 * Transferred code from `class.js` in tool folder to proper source folder for the project.
 ### Changed
-* Renamed several class methods in `App.js` in preparation for the addition of quantum mechanical atomic models.
-    * `initShells` renamed to `initBohrShells`
-    * `createElectrons` renamed to `createBohrElectrons`
-    * `initiateElectronRotation` renamed to `initiateBohrElectronRotation`
+* N/A
 ### Removed
 * Period-individual atom and shell classes have been removed in favor of the simpler and more efficient class system presently used.
 * Axes and spotlight helpers have been removed.
