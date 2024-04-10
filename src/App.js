@@ -125,13 +125,17 @@ class App
         atomFolder.onChange
         (   ( target ) =>
             {   if ( target.value == 'Helium' )
-                {   console.log(this.manager);
-                    this.manager.resetAtom( this.scene, this.world, new Atom('Helium', 2, 4, '1s2 2s2', true) );
-                }
+                {   this.manager.resetAtom( this.scene, this.world, new Atom('Helium', 2, 4, '1s2 2s2', rotateFolder.controllers[0].object.rotate ) );   }
                 else if ( target.value == 'Copper' )
-                {   console.log(this.manager);
-                    this.manager.resetAtom( this.scene, this.world, new Atom('Copper', 29, 64, '1s2 2s2 2p6 3s2 3p6 4s1 3d10', true) );
-                }
+                {   this.manager.resetAtom( this.scene, this.world, new Atom('Copper', 29, 64, '1s2 2s2 2p6 3s2 3p6 4s1 3d10', rotateFolder.controllers[0].object.rotate ) );   }
+                else if ( target.value == 'Iodine' )
+                {   this.manager.resetAtom( this.scene, this.world, new Atom('Iodine', 53, 127, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 3p6 5s2 4d10 5p5', rotateFolder.controllers[0].object.rotate ) );   }
+                else if ( target.value == 'Uranium' )
+                {   this.manager.resetAtom( this.scene, this.world, new Atom('Uranium', 92, 238, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1', rotateFolder.controllers[0].object.rotate ) );   }
+                else if ( target.value == 'Oganesson' )
+                {   this.manager.resetAtom( this.scene, this.world, new Atom('Oganesson', 118, 294, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p6', rotateFolder.controllers[0].object.rotate ) );   }
+                this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
+                this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
             }
         )
 
