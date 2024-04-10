@@ -9,3 +9,5 @@ let manager = new BohrAtomManager( new Atom('Helium', 2, 4, '1s2 2s2', true) );
 
 let app = new App( manager );
 app.initScene();
+
+export { triviaText, triviaPool };
