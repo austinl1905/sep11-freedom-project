@@ -2,13 +2,8 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Atom, QuantumAtomManager, BohrAtomManager } from './Components.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
-
-// let manager = new BohrAtomManager( new Atom('Helium', 2, 4, '1s2 2s2') );
-let manager = new BohrAtomManager( new Atom( 'Uranium', 92, 238, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1', true ) );
+import Stats from 'three/addons/libs/stats.module.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 class App
 {   constructor( manager )
@@ -25,6 +20,7 @@ class App
         this.onPointerMove = this.onPointerMove.bind( this );
         this.manager = manager;
         this.intersectedObject;
+        this.stats = new Stats();
     }
 
     onPointerMove( event )
@@ -62,13 +58,17 @@ class App
 
     animate()
     {   requestAnimationFrame( this.animate );
-        if (this.manager.frameCount > 60)
+        this.stats.begin();
+        if (this.manager.allBodiesStatic == true)
         {   document.querySelector('#loadingScreen').style.display = 'none';   }
+        else
+        {   document.querySelector('#loadingScreen').style.display = 'flex';   }
         this.renderer.render( this.scene, this.camera );
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
         this.world.step( 1 / 60 );
         this.controls.update;
+        this.stats.end();
     }
 
     initScene()
@@ -90,6 +90,8 @@ class App
         window.addEventListener( 'resize', this.onWindowResize, false );
         window.addEventListener( 'pointermove', this.onPointerMove );
 
+	    document.body.appendChild( this.stats.dom );
+
         const ambientLight = new THREE.AmbientLight( 0xffffff , 0.2 );
 		this.scene.add( ambientLight );
 
@@ -106,6 +108,38 @@ class App
 
         this.scene.background = new THREE.Color( 0x111111 );
 
+        // Temporary GUI
+        let gui = new GUI();
+
+        let selection =
+        {   atom: 'Helium',
+            rotate: true
+        };
+
+        let atomFolder = gui.addFolder('Atom');
+        atomFolder.add( selection, 'atom', ['Helium', 'Copper', 'Iodine', 'Uranium', 'Oganesson'] );
+        let rotateFolder = gui.addFolder('Rotate');
+        rotateFolder.add( selection, 'rotate', [true, false] );
+        atomFolder.open();
+
+        atomFolder.onChange
+        (   ( target ) =>
+            {   if ( target.value == 'Helium' )
+                {   console.log(this.manager);
+                    this.manager.resetAtom( this.scene, this.world, new Atom('Helium', 2, 4, '1s2 2s2', true) );
+                }
+                else if ( target.value == 'Copper' )
+                {   console.log(this.manager);
+                    this.manager.resetAtom( this.scene, this.world, new Atom('Copper', 29, 64, '1s2 2s2 2p6 3s2 3p6 4s1 3d10', true) );
+                }
+            }
+        )
+
+        rotateFolder.onChange
+        (   ( target ) =>
+            {   this.manager.atom.rotate = target.value;   }
+        )
+
         this.manager.createNucleus( this.scene, this.world );
         this.manager.createElectrons( this.scene, this.world );
 
@@ -113,23 +147,4 @@ class App
     }
 }
 
-let app = new App( manager );
-app.initScene();
-
-javascript:
-(   function()
-    {   var script = document.createElement('script');
-        script.onload = function()
-            {   var stats = new Stats();
-                document.body.appendChild(stats.dom);
-                requestAnimationFrame
-                (   function loop()
-                    {   stats.update();
-                        requestAnimationFrame(loop)
-                    }
-                );
-            };
-        script.src='https://mrdoob.github.io/stats.js/build/stats.min.js';
-        document.head.appendChild(script);
-    }
-)()
+export { App };

@@ -11,7 +11,7 @@ class Proton
                     shininess: 3,
                     specular: 0xffffff,
                     name: 'protonMesh',
-                    opacity: 0.7,
+                    opacity: 0.8,
                     transparent: true
                 }
             )
@@ -39,7 +39,7 @@ class Neutron
                     shininess: 3,
                     specular: 0xffffff,
                     name: 'neutronMesh',
-                    opacity: 0.7,
+                    opacity: 0.8,
                     transparent: true
                 }
             ),

@@ -67,7 +67,15 @@ class AbstractAtomManager
         this.minVelocitySquared = 0.1;
         this.minAngularVelocitySquared = 0.1;
         this.frameCount = 0;
+        this.allBodiesStatic = false;
     }
+
+    createElectrons( scene )
+    {   throw new Error('createElectrons not defined in base class;');   }
+
+    // Animation function
+    controlElectronMovement( scene )
+    {   throw new Error('controlElectronMovement not defined in base class;');   }
 
     // Initiation function
     createNucleus( scene, world )
@@ -80,22 +88,28 @@ class AbstractAtomManager
     // Animation function
     controlNucleonMovement()
     {   this.frameCount++;
+
         for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   this.atom.nucleons[i].body.force.set
             (   -this.atom.nucleons[i].body.position.x * 100,
                 -this.atom.nucleons[i].body.position.y * 100,
                 -this.atom.nucleons[i].body.position.z * 100,
             )
-            if (this.frameCount > 60)
+
+            if (this.frameCount > 60) // Because for some odd reason it takes a few frames for the nucleons to move
             {   if (this.atom.nucleons[i].body.velocity.lengthSquared() < this.minVelocitySquared || this.atom.nucleons[i].body.angularVelocity.lengthSquared() < this.minAngularVelocitySquared)
                 {   this.atom.nucleons[i].body.type = CANNON.Body.STATIC;   }
             }
+
             this.atom.nucleons[i].mesh.position.copy( this.atom.nucleons[i].body.position );
             this.atom.nucleons[i].mesh.quaternion.copy( this.atom.nucleons[i].body.quaternion );
         }
+
+        if ( this.atom.nucleons.every( (nucleon) => nucleon.body.type == CANNON.Body.STATIC ) )
+        {   this.allBodiesStatic = true;   }
     }
 
-    removeAtom( scene, world )
+    resetAtom( scene, world, atom)
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
         {   scene.remove(this.atom.bohrElectronShells[i].mesh);   }
 
@@ -108,6 +122,13 @@ class AbstractAtomManager
         {   scene.remove( this.atom.nucleons[i].mesh );
             world.removeBody( this.atom.nucleons[i].body );
         }
+
+        this.atom = atom;
+        this.frameCount = 0;
+        this.allBodiesStatic = false;
+
+        this.createNucleus( scene, world );
+        this.createElectrons( scene );
     }
 }
 

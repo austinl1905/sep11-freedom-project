@@ -7,7 +7,6 @@ html, body {
 #loadingScreen {
   margin: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
   position: absolute;
   top: 0;
@@ -17,12 +16,25 @@ html, body {
   z-index: 1;
   background-color: black;
 }
+@media (max-width: 800px) {
+  #loadingScreen {
+    display: block;
+  }
+}
 
-#loadingScreenText {
+.loadingScreenText {
   text-align: center;
   font-family: "Roboto", sans-serif;
   font-weight: bold;
   color: white;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+@media (max-width: 800px) {
+  .loadingScreenText {
+    margin-top: 50px;
+  }
 }
 
 #canvas {
