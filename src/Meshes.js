@@ -10,7 +10,9 @@ class Proton
                     side: THREE.DoubleSide,
                     shininess: 3,
                     specular: 0xffffff,
-                    name: 'protonMesh'
+                    name: 'protonMesh',
+                    opacity: 0.7,
+                    transparent: true
                 }
             )
         );
@@ -36,7 +38,9 @@ class Neutron
                     side: THREE.DoubleSide,
                     shininess: 3,
                     specular: 0xffffff,
-                    name: 'neutronMesh'
+                    name: 'neutronMesh',
+                    opacity: 0.7,
+                    transparent: true
                 }
             ),
         );
@@ -58,7 +62,11 @@ class Electron
     {   this.mesh = new THREE.Mesh
         (   new THREE.SphereGeometry( 0.4, 32, 32 ),
             new THREE.MeshBasicMaterial
-            (   {   color: 0x37ff37   }   )
+            (   {   color: 0x37ff37,
+                    opacity: 0.7,
+                    transparent: true
+                }
+            )
         )
     }
 }

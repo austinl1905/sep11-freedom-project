@@ -1,4 +1,6 @@
 import { Proton, Neutron, Electron, ElectronShell } from './Meshes.js';
+import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
 
 class Atom
 {   constructor( name, atomicNum, atomicMass, electronConfigurationExtended, rotate = true )
@@ -61,7 +63,11 @@ class Atom
 */
 class AbstractAtomManager
 {   constructor( atom )
-    {   this.atom = atom;   }
+    {   this.atom = atom;
+        this.minVelocitySquared = 0.1;
+        this.minAngularVelocitySquared = 0.1;
+        this.frameCount = 0;
+    }
 
     // Initiation function
     createNucleus( scene, world )
@@ -72,21 +78,20 @@ class AbstractAtomManager
     }
 
     // Animation function
-    copyNucleons()
-    {   for ( let i = 0; i < this.atom.nucleons.length; i++ )
-        {   this.atom.nucleons[i].mesh.position.copy( this.atom.nucleons[i].body.position );
-            this.atom.nucleons[i].mesh.quaternion.copy( this.atom.nucleons[i].body.quaternion );
-        }
-    }
-
-    // Animation function
-    pullOrigin()
-    {   for ( let i = 0; i < this.atom.nucleons.length; i++ ) // Iterate through all nucleons and pull them towards the origin
+    controlNucleonMovement()
+    {   this.frameCount++;
+        for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   this.atom.nucleons[i].body.force.set
-            (   -this.atom.nucleons[i].body.position.x * 10,
-                -this.atom.nucleons[i].body.position.y * 10,
-                -this.atom.nucleons[i].body.position.z * 10,
+            (   -this.atom.nucleons[i].body.position.x * 100,
+                -this.atom.nucleons[i].body.position.y * 100,
+                -this.atom.nucleons[i].body.position.z * 100,
             )
+            if (this.frameCount > 60)
+            {   if (this.atom.nucleons[i].body.velocity.lengthSquared() < this.minVelocitySquared || this.atom.nucleons[i].body.angularVelocity.lengthSquared() < this.minAngularVelocitySquared)
+                {   this.atom.nucleons[i].body.type = CANNON.Body.STATIC;   }
+            }
+            this.atom.nucleons[i].mesh.position.copy( this.atom.nucleons[i].body.position );
+            this.atom.nucleons[i].mesh.quaternion.copy( this.atom.nucleons[i].body.quaternion );
         }
     }
 
@@ -117,7 +122,7 @@ class QuantumAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    initiateElectronMovement( scene )
+    controlElectronMovement( scene )
     {
 
     }
@@ -131,7 +136,7 @@ class BohrAtomManager extends AbstractAtomManager
 {   // Initiation function
     createElectrons( scene )
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
-        {   
+        {
             scene.add(this.atom.bohrElectronShells[i].mesh);
         }
 
@@ -147,16 +152,20 @@ class BohrAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    initiateElectronMovement()
-    {   let time = Date.now() * 0.001;
-        for (let i = 0; i < this.atom.electrons.length; i++)
-        {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-            {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
-                let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                this.atom.electrons[i][j].mesh.position.set(orbitX, 0, orbitZ);
+    controlElectronMovement()
+    {   if (this.atom.rotate == true)
+        {   let time = Date.now() * 0.001;
+            for (let i = 0; i < this.atom.electrons.length; i++)
+            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
+                    let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                    let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                    this.atom.electrons[i][j].mesh.position.set(orbitX, 0, orbitZ);
+                }
             }
         }
+        // else
+        // {   throw new Error('this.atom.rotate property is set to false.');   }
     }
 }
 
