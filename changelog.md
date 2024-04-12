@@ -3,9 +3,14 @@
 I just really wanted to make a changelog. I might make this into a library or something. Who knows.
 
 All changes to this project from 2024-04-06 onwards are documented here.
-## (Unreleased) [1.1.0] 2024-04-10
+## [1.2.0] 2024-04-11
 ### Added
-* GUI for selecting atoms.
+### Changed
+* Refactored 
+### Removed
+## [1.1.0] 2024-04-10
+### Added
+* Temporary GUI for selecting atoms.
 * Boolean for atom rotation
 * Raycasting to highlight particles on hover
 * Loading screen that hides the model until all nucleons are static

@@ -58,11 +58,12 @@ class Neutron
 }
 
 class Electron
-{   constructor()
-    {   this.mesh = new THREE.Mesh
+{   constructor( color = 0x37ff37 )
+    {   this.color = color;
+        this.mesh = new THREE.Mesh
         (   new THREE.SphereGeometry( 0.4, 32, 32 ),
             new THREE.MeshBasicMaterial
-            (   {   color: 0x37ff37,
+            (   {   color: this.color,
                     opacity: 0.7,
                     transparent: true
                 }
@@ -72,7 +73,7 @@ class Electron
 }
 
 class ElectronShell
-{   constructor(radius)
+{   constructor(radius = 12)
     {   this.radius = radius;
         this.mesh = new THREE.Mesh
         (   new THREE.TorusGeometry(this.radius, 0.05),

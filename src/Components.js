@@ -3,14 +3,38 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 class Atom
-{   constructor( name, atomicNum, atomicMass, electronConfigurationExtended, rotate = true )
-    {   this.atomicNum = atomicNum;
+{   constructor( name, atomicNum, atomicMass, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true, extendedColorsEnabled = false )
+    {   if (colorsEnabled)
+        {   this.colorsBasic = Object.entries
+            (   {   _1s: 0x37ff30,
+                    _2s: 0xff3037,
+                    _2p: 0xff3037,
+                    _3s: 0x3037ff,
+                    _3p: 0x3037ff,
+                    _4s: 0xff9030,
+                    _3d: 0x3037ff,
+                    _4p: 0xff9030,
+                    _5s: 0xf830ff,
+                    _4d: 0xff9030,
+                    _5p: 0xf830ff,
+                    _6s: 0x30fff8,
+                    _4f: 0xff9030,
+                    _5d: 0xf830ff,
+                    _6p: 0x30fff8,
+                    _7s: 0xffffff,
+                    _5f: 0xf830ff,
+                    _6d: 0x30fff8,
+                    _7p: 0xffffff
+                }
+            )
+        }
+        this.atomicNum = atomicNum;
         this.atomicMass = atomicMass;
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
         this.nucleons = this.initNucleus();
         this.electrons = this.initElectrons();
         this.bohrElectronShells = this.initBohrShells();
-        this.rotate = rotate;
+        this.rotateEnabled = rotateEnabled;
     }
 
     initNucleus()
@@ -21,6 +45,7 @@ class Atom
             else
             {   nucleons.push( new Proton() );   }
         }
+
         return nucleons;
     }
 
@@ -32,27 +57,29 @@ class Atom
         return electronShells;
     }
 
-    initElectrons() // This code is atrocious and I'm sorry
+     // This code is atrocious and I'm sorry
+    initElectrons()
     {   const orbitals = this.electronConfigurationExtended.split(' ');
         let electronNums = [];
         let electronShellData = [];
         // let totalElectrons = 0;
 
-        orbitals.forEach
-        (   (orbital) =>
-            {   const [shell, count] = orbital.match(/\d+/g);
-                const electronCount = parseInt(count);
-                // totalElectrons += electronCount;
+        for ( let i = 0; i < orbitals.length; i++ )
+        {   const orbital = orbitals[i];
+            const [ shell, count ] = orbital.match(/\d+/g);
+            const electronCount = parseInt( count );
 
-                // Update electron shell data
-                if ( electronShellData[shell] )
-                {   electronShellData[shell].push(...Array.from( { length: electronCount }, () => new Electron() ) );   } // Don't ask me to explain this... Because I can't
-                else
-                {   electronShellData[shell] = Array.from( { length: electronCount }, () => new Electron() );   }
+            if ( electronShellData[shell] )
+            {   for ( let j = 0; j < electronCount; j++ )
+                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1]) );   }
+            } else {
+                electronShellData[shell] = [];
+                for ( let j = 0; j < electronCount; j++ )
+                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1]) );   }
             }
-        );
+        }
 
-        return electronShellData.slice(1); // This is so hacky but i dont want to fix it rn
+        return electronShellData.slice(1);
     }
 }
 
@@ -70,6 +97,7 @@ class AbstractAtomManager
         this.allBodiesStatic = false;
     }
 
+    // Initialization function
     createElectrons( scene )
     {   throw new Error('createElectrons not defined in base class;');   }
 
@@ -87,7 +115,7 @@ class AbstractAtomManager
 
     // Animation function
     controlNucleonMovement()
-    {   this.frameCount++;
+    {   this.frameCount++; // Because for some odd reason it takes a few frames for the nucleons to move
 
         for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   this.atom.nucleons[i].body.force.set
@@ -96,7 +124,7 @@ class AbstractAtomManager
                 -this.atom.nucleons[i].body.position.z * 100,
             )
 
-            if (this.frameCount > 60) // Because for some odd reason it takes a few frames for the nucleons to move
+            if (this.frameCount > 60)
             {   if (this.atom.nucleons[i].body.velocity.lengthSquared() < this.minVelocitySquared || this.atom.nucleons[i].body.angularVelocity.lengthSquared() < this.minAngularVelocitySquared)
                 {   this.atom.nucleons[i].body.type = CANNON.Body.STATIC;   }
             }
@@ -109,7 +137,7 @@ class AbstractAtomManager
         {   this.allBodiesStatic = true;   }
     }
 
-    resetAtom( scene, world, atom)
+    resetAtom( scene, world, atom = null)
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
         {   scene.remove(this.atom.bohrElectronShells[i].mesh);   }
 
@@ -123,12 +151,14 @@ class AbstractAtomManager
             world.removeBody( this.atom.nucleons[i].body );
         }
 
-        this.atom = atom;
-        this.frameCount = 0;
-        this.allBodiesStatic = false;
+        if (atom)
+        {   this.atom = atom;
+            this.frameCount = 0; // :skull:
+            this.allBodiesStatic = false;
 
-        this.createNucleus( scene, world );
-        this.createElectrons( scene );
+            this.createNucleus( scene, world );
+            this.createElectrons( scene );
+        }
     }
 }
 
@@ -157,9 +187,7 @@ class BohrAtomManager extends AbstractAtomManager
 {   // Initiation function
     createElectrons( scene )
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
-        {
-            scene.add(this.atom.bohrElectronShells[i].mesh);
-        }
+        {   scene.add(this.atom.bohrElectronShells[i].mesh);   }
 
         for ( let i = 0; i < this.atom.electrons.length; i++ ) // Iterate through multi-dimensional electron array and add them to the scene while setting their positions
         {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
@@ -174,7 +202,7 @@ class BohrAtomManager extends AbstractAtomManager
 
     // Animation function
     controlElectronMovement()
-    {   if (this.atom.rotate == true)
+    {   if (this.atom.rotateEnabled == true)
         {   let time = Date.now() * 0.001;
             for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
@@ -185,8 +213,6 @@ class BohrAtomManager extends AbstractAtomManager
                 }
             }
         }
-        // else
-        // {   throw new Error('this.atom.rotate property is set to false.');   }
     }
 }
 
