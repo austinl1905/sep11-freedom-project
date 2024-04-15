@@ -60,22 +60,21 @@ class Atom
      // This code is atrocious and I'm sorry
     initElectrons()
     {   const orbitals = this.electronConfigurationExtended.split(' ');
-        let electronNums = [];
         let electronShellData = [];
-        // let totalElectrons = 0;
 
-        for ( let i = 0; i < orbitals.length; i++ )
+        for ( let i = 0; i < orbitals.length; i++ ) // hey hey check out my crappy variable naming
         {   const orbital = orbitals[i];
             const [ shell, count ] = orbital.match(/\d+/g);
+            const [ principal, num ] = orbital.match(/\d+|\D+/g);
             const electronCount = parseInt( count );
 
             if ( electronShellData[shell] )
             {   for ( let j = 0; j < electronCount; j++ )
-                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1]) );   }
+                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1], `${principal}${orbital}` ) );   }
             } else {
                 electronShellData[shell] = [];
                 for ( let j = 0; j < electronCount; j++ )
-                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1]) );   }
+                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1], `${principal}${orbital}` ) );   }
             }
         }
 

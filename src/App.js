@@ -5,15 +5,17 @@ import { Atom, QuantumAtomManager, BohrAtomManager } from './Components.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { triviaText, triviaPool } from './../Main.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 class App
 {   constructor( manager )
     {   this.scene = new THREE.Scene();
         this.world = new CANNON.World( 0, 0, 0 );
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+        this.labelRenderer = new CSS2DRenderer();
         this.camera = new THREE.PerspectiveCamera
         (   45, window.innerWidth / window.innerHeight, 1, 1000   );
-        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+        this.controls = new OrbitControls( this.camera, this.labelRenderer.domElement );
         this.pointer = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
         this.onWindowResize = this.onWindowResize.bind( this );
@@ -55,6 +57,7 @@ class App
     {   this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.labelRenderer.setSize(window.innerWidth, window.innerHeight );
     }
 
     animate()
@@ -85,11 +88,17 @@ class App
         this.controls.enablePan = false;
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
+
         let container = document.getElementById('canvas');
         document.body.appendChild( container );
         container.appendChild( this.renderer.domElement );
         window.addEventListener( 'resize', this.onWindowResize, false );
         window.addEventListener( 'pointermove', this.onPointerMove );
+
+        this.labelRenderer.setSize(window.innerWidth, window.innerHeight );
+        this.labelRenderer.domElement.style.position = 'absolute';
+        this.labelRenderer.domElement.style.top = '0px';
+        document.body.appendChild( this.labelRenderer.domElement );
 
 	    document.body.appendChild( this.stats.dom );
 

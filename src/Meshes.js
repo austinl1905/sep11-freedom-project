@@ -16,7 +16,7 @@ class Proton
                 }
             )
         );
-
+        this.name = 'Proton';
         this.body = new CANNON.Body
         (   {   mass: 1,
                 shape: new CANNON.Sphere( 1 ),
@@ -44,7 +44,7 @@ class Neutron
                 }
             ),
         );
-
+        this.name = 'Neutron';
         this.body = new CANNON.Body
         (   {   mass: 1,
                 shape: new CANNON.Sphere( 1 ),
@@ -58,8 +58,9 @@ class Neutron
 }
 
 class Electron
-{   constructor( color = 0x37ff37 )
+{   constructor( color = 0x37ff37, orbital )
     {   this.color = color;
+        this.name = `Electron ${orbital}`;
         this.mesh = new THREE.Mesh
         (   new THREE.SphereGeometry( 0.4, 32, 32 ),
             new THREE.MeshBasicMaterial
@@ -75,6 +76,7 @@ class Electron
 class ElectronShell
 {   constructor(radius = 12)
     {   this.radius = radius;
+        this.name = `Electron Shell ${((this.radius - 12) / 5) + 1 }`;
         this.mesh = new THREE.Mesh
         (   new THREE.TorusGeometry(this.radius, 0.05),
             new THREE.MeshBasicMaterial(),

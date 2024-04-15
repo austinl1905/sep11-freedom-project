@@ -246,3 +246,10 @@ Learned how to modularize my code and finally transferred my code to the actual 
 In the meantime I want to learn how to make GUIs with CSS and JS. No bootstrap because its just so easy to tell when a website uses it
 
 Also preparing for my beyond mvp wwhich involves more three js features
+
+4/14/24
+
+uh yeah added a temporary gui that shwovcases some of the atoms you can actually see it on the github pages
+
+wave mechanical model still a WIP as its gonna be a real pain to do so I've been focusing on some other features like raycasting code optimizations etc
+
