@@ -454,7 +454,141 @@ const ATOMS =
         atomicMass: 231,
         electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f2 6d1',
     },
-    
+    'Uranium':
+    {   atomicNum: 92,
+        atomicMass: 238,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1',
+    },
+    'Neptunium':
+    {   atomicNum: 93,
+        atomicMass: 237,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f4 6d1',
+    },
+    'Plutonium':
+    {   atomicNum: 94,
+        atomicMass: 244,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f6',
+    },
+    'Americium':
+    {   atomicNum: 95,
+        atomicMass: 243,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7',
+    },
+    'Curium':
+    {   atomicNum: 96,
+        atomicMass: 247,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7 6d1',
+    },
+    'Berkelium':
+    {   atomicNum: 97,
+        atomicMass: 247,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f9',
+    },
+    'Californium':
+    {   atomicNum: 98,
+        atomicMass: 251,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f10',
+    },
+    'Einsteinium':
+    {   atomicNum: 99,
+        atomicMass: 252,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f11',
+    },
+    'Fermium':
+    {   atomicNum: 100,
+        atomicMass: 257,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f12',
+    },
+    'Mendelevium':
+    {   atomicNum: 101,
+        atomicMass: 258,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f13',
+    },
+    'Nobelium':
+    {   atomicNum: 102,
+        atomicMass: 259,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14',
+    },
+    'Lawrencium':
+    {   atomicNum: 103,
+        atomicMass: 262,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d0 7p1',
+    },
+    'Rutherfordium':
+    {   atomicNum: 104,
+        atomicMass: 267,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d2',
+    },
+    'Dubnium':
+    {   atomicNum: 105,
+        atomicMass: 262,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d3',
+    },
+    'Seaborgium':
+    {   atomicNum: 106,
+        atomicMass: 269,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d4',
+    },
+    'Bohrium':
+    {   atomicNum: 107,
+        atomicMass: 264,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d5',
+    },
+    'Hassium':
+    {   atomicNum: 108,
+        atomicMass: 269,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d6',
+    },
+    'Meitnerium':
+    {   atomicNum: 109,
+        atomicMass: 278,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d7',
+    },
+    'Darmstadtium':
+    {   atomicNum: 110,
+        atomicMass: 281,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d8',
+    },
+    'Roentgenium':
+    {   atomicNum: 111,
+        atomicMass: 282,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d9',
+    },
+    'Copernicium':
+    {   atomicNum: 112,
+        atomicMass: 285,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10',
+    },
+    'Nihonium':
+    {   atomicNum: 113,
+        atomicMass: 286,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p1',
+    },
+    'Flerovium':
+    {   atomicNum: 114,
+        atomicMass: 289,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p2',
+    },
+    'Moscovium':
+    {   atomicNum: 115,
+        atomicMass: 289,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p3',
+    },
+    'Livermorium':
+    {   atomicNum: 116,
+        atomicMass: 293,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p4',
+    },
+    'Tennessine':
+    {   atomicNum: 117,
+        atomicMass: 294,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p5',
+    },
+    'Oganesson':
+    {   atomicNum: 118,
+        atomicMass: 294,
+        electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p6',
+    }
 }
 
 export { ATOMS };

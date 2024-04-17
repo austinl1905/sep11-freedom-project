@@ -2,6 +2,7 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Atom, QuantumAtomManager, BohrAtomManager } from './Components.js';
+import { ATOMS } from './Info.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { triviaText, triviaPool } from './../Main.js';
@@ -127,23 +128,16 @@ class App
         };
 
         let atomFolder = gui.addFolder('Atom');
-        atomFolder.add( selection, 'atom', ['Helium', 'Copper', 'Iodine', 'Uranium', 'Oganesson'] );
+        atomFolder.add( selection, 'atom');
         let rotateFolder = gui.addFolder('Rotate');
         rotateFolder.add( selection, 'rotate', [true, false] );
         atomFolder.open();
 
-        atomFolder.onChange
+        atomFolder.onFinishChange
         (   ( target ) =>
-            {   if ( target.value == 'Helium' )
-                {   this.manager.resetAtom( this.scene, this.world, new Atom('Helium', 2, 4, '1s2 2s2', rotateFolder.controllers[0].object.rotate ) );   }
-                else if ( target.value == 'Copper' )
-                {   this.manager.resetAtom( this.scene, this.world, new Atom('Copper', 29, 64, '1s2 2s2 2p6 3s2 3p6 4s1 3d10', rotateFolder.controllers[0].object.rotate ) );   }
-                else if ( target.value == 'Iodine' )
-                {   this.manager.resetAtom( this.scene, this.world, new Atom('Iodine', 53, 127, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p5', rotateFolder.controllers[0].object.rotate ) );   }
-                else if ( target.value == 'Uranium' )
-                {   this.manager.resetAtom( this.scene, this.world, new Atom('Uranium', 92, 238, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1', rotateFolder.controllers[0].object.rotate ) );   }
-                else if ( target.value == 'Oganesson' )
-                {   this.manager.resetAtom( this.scene, this.world, new Atom('Oganesson', 118, 294, '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p6', rotateFolder.controllers[0].object.rotate ) );   }
+            {   let targetValue = target.value.toLowerCase();
+                let processedValue = targetValue.charAt(0).toUpperCase() + targetValue.slice(1);
+                this.manager.resetAtom( this.scene, this.world, new Atom(ATOMS[processedValue], ATOMS[processedValue].atomicNum, ATOMS[processedValue].atomicMass, ATOMS[processedValue].electronConfig, rotateFolder.controllers[0].object.rotate ) )
 
                 this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
                 this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
