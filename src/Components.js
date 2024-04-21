@@ -219,30 +219,32 @@ class BohrAtomManager extends AbstractAtomManager
         }
     }
 
+    controlElectronColoration()
+    {   if ( this.atom.colorsEnabled )
+        {   for (let i = 0; i < this.atom.electrons.length; i++)
+            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                {   this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+            }
+        }
+        else
+        {   for (let i = 0; i < this.atom.electrons.length; i++)
+            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                {   this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );   }
+            }
+        }
+    }
+
     // Animation function
     controlElectronMovement()
     {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
-            if ( this.atom.colorsEnabled )
-            {   for (let i = 0; i < this.atom.electrons.length; i++)
-                {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                    {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
-                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                        this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );
-                        this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
-                    }
-                }
-            }
-            else
-            {   for (let i = 0; i < this.atom.electrons.length; i++)
-                {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                    {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
-                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                        this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );
-                        this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
-                    }
+            for (let i = 0; i < this.atom.electrons.length; i++)
+            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
+                    let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                    let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                    this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );
+                    this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
                 }
             }
         }

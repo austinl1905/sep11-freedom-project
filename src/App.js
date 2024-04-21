@@ -94,6 +94,7 @@ class App
         this.labelRenderer.render( this.scene, this.camera );
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
+        this.manager.controlElectronColoration();
         this.world.step( 1 / 60 );
         this.controls.update;
         this.stats.end();
