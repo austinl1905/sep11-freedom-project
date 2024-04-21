@@ -118,11 +118,15 @@ class AbstractAtomManager
 
     // Initialization function
     createElectrons( scene )
-    {   throw new Error('createElectrons not defined in base class');   }
+    {   throw new Error('createElectrons is not defined in the base class');   }
 
     // Animation function
-    controlElectronMovement( scene )
-    {   throw new Error('controlElectronMovement not defined in base class');   }
+    controlElectronMovement()
+    {   throw new Error('controlElectronMovement is not defined in the base class');   }
+
+    // Animation function
+    controlElectronColoration()
+    {   throw new Error('controlElectronColoration is not defined in the base class');   }
 
     // Initiation function
     createNucleus( scene, world )
@@ -192,11 +196,15 @@ class QuantumAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    controlElectronMovement( scene )
+    controlElectronMovement()
     {
 
     }
 
+    controlElectronColoration()
+    {
+
+    }
 }
 
 /*
@@ -219,17 +227,21 @@ class BohrAtomManager extends AbstractAtomManager
         }
     }
 
-    controlElectronColoration()
+    controlElectronColoration( intersectedObj )
     {   if ( this.atom.colorsEnabled )
         {   for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+                {   if (this.atom.electrons[i][j].mesh != intersectedObj)
+                    {   this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+                }
             }
         }
         else
         {   for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );   }
+                {   if (this.atom.electrons[i][j].mesh != intersectedObj)
+                    {   this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );   }
+                }
             }
         }
     }

@@ -52,12 +52,12 @@ class App
 
         // Highlights intersected objects
 
-        if (this.intersectedObject) { // Check if value of intersectedObject is not null
+        if ( this.intersectedObject ) { // Check if value of intersectedObject is not null
             this.intersectedObject.material = this.intersectedObject.originalMaterial;
             this.intersectedObject = null;
         }
 
-        if (intersects.length > 0)
+        if ( intersects.length > 0 )
         {   let intersectedObject = intersects[0].object;
             intersectedObject.originalMaterial = intersectedObject.material.clone();
             intersectedObject.material = new THREE.MeshBasicMaterial
@@ -94,7 +94,7 @@ class App
         this.labelRenderer.render( this.scene, this.camera );
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
-        this.manager.controlElectronColoration();
+        this.manager.controlElectronColoration( this.intersectedObject );
         this.world.step( 1 / 60 );
         this.controls.update;
         this.stats.end();
