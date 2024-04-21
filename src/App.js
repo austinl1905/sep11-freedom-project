@@ -167,7 +167,8 @@ class App
         // Default selection for atom model on page load
         let selection =
         {   atom: 'Helium',
-            rotate: true
+            rotate: true,
+            basic: true
         };
 
         let atomFolder = gui.addFolder('Atom');
@@ -175,6 +176,8 @@ class App
         let rotateFolder = gui.addFolder('Rotate');
         rotateFolder.add( selection, 'rotate', [true, false] );
         atomFolder.open();
+        let colorFolder = gui.addFolder('Colors');
+        colorFolder.add( selection, 'basic', [true, false] );
 
         atomFolder.onFinishChange
         (   ( target ) =>
@@ -190,7 +193,8 @@ class App
                         ATOMS[processedValue].atomicMass, // Atomic Mass
                         ATOMS[processedValue].atomicSymbol, // Atomic Symbol
                         ATOMS[processedValue].electronConfig, // Electron Configuration
-                        rotateFolder.controllers[0].object.rotate // Rotate boolean
+                        rotateFolder.controllers[0].object.rotate, // Rotate boolean
+                        colorFolder.controllers[0].object.basic, // Colors boolean
                     )
                 )
 
@@ -213,6 +217,11 @@ class App
         rotateFolder.onChange
         (   ( target ) =>
             {   this.manager.atom.rotateEnabled = target.value;   }
+        )
+
+        colorFolder.onChange
+        (   ( target ) =>
+            {   this.manager.atom.colorsEnabled = target.value;   }
         )
 
         this.manager.createNucleus( this.root, this.world );

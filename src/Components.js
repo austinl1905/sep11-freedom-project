@@ -3,38 +3,49 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 class Atom
-{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true, extendedColorsEnabled = false )
-    {   if (colorsEnabled)
-        {   this.colorsBasic = Object.entries
-            (   {   _1s: 0x37ff30,
-                    _2s: 0xff3037,
-                    _2p: 0xff3037,
-                    _3s: 0x3037ff,
-                    _3p: 0x3037ff,
-                    _4s: 0xff9030,
-                    _3d: 0x3037ff,
-                    _4p: 0xff9030,
-                    _5s: 0xf830ff,
-                    _4d: 0xff9030,
-                    _5p: 0xf830ff,
-                    _6s: 0x30fff8,
-                    _4f: 0xff9030,
-                    _5d: 0xf830ff,
-                    _6p: 0x30fff8,
-                    _7s: 0xffffff,
-                    _5f: 0xf830ff,
-                    _6d: 0x30fff8,
-                    _7p: 0xffffff
-                }
-            )
-        }
+{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true)
+    {   this.colorsEnabled = colorsEnabled;
+        this.colorsExtended = Object.entries
+        (   {   _1s: 0x37ff30,
+                _2s: 0xff3037,
+                _2p: 0xff3037,
+                _3s: 0x3037ff,
+                _3p: 0x3037ff,
+                _4s: 0xff9030,
+                _3d: 0x3037ff,
+                _4p: 0xff9030,
+                _5s: 0xf830ff,
+                _4d: 0xff9030,
+                _5p: 0xf830ff,
+                _6s: 0x30fff8,
+                _4f: 0xff9030,
+                _5d: 0xf830ff,
+                _6p: 0x30fff8,
+                _7s: 0xffffff,
+                _5f: 0xf830ff,
+                _6d: 0x30fff8,
+                _7p: 0xffffff
+            }
+        );
+        this.colorsBasic = Object.entries
+        (   {   _1: 0x37ff30,
+                _2: 0xff3037,
+                _3: 0x3037ff,
+                _4: 0xff9030,
+                _5: 0xf830ff,
+                _6: 0x30fff8,
+                _7: 0xffffff,
+            }
+        );
         this.name = name;
         this.atomicNum = atomicNum;
         this.atomicMass = atomicMass;
         this.atomicSymbol = atomicSymbol;
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
         this.nucleons = this.initNucleus();
-        this.electrons = this.initElectrons();
+        this.electronData = this.initElectrons();
+        this.electrons = this.electronData[0];
+        this.orbitals = this.electronData[1];
         this.bohrElectronShells = this.initBohrShells();
         this.rotateEnabled = rotateEnabled;
     }
@@ -67,20 +78,27 @@ class Atom
         for ( let i = 0; i < orbitals.length; i++ ) // hey hey check out my crappy variable naming
         {   const orbital = orbitals[i];
             const [ shell, count ] = orbital.match(/\d+/g);
-            const [ principal, num ] = orbital.match(/\d+|\D+/g);
             const electronCount = parseInt( count );
 
             if ( electronShellData[shell] )
             {   for ( let j = 0; j < electronCount; j++ )
-                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1], `${principal}${orbital}` ) );   }
+                {   if ( this.colorsEnabled )
+                    {   electronShellData[ shell ].push(new Electron(this.colorsExtended[i][1], `${orbital.substring(0, 2)}` ) );   }
+                    else
+                    {   electronShellData[ shell ].push(new Electron( 0x37ff37, `${orbital.substring(0, 2)}` ) );   }
+                }
             } else {
                 electronShellData[shell] = [];
                 for ( let j = 0; j < electronCount; j++ )
-                {   electronShellData[ shell ].push(new Electron(this.colorsBasic[i][1], `${principal}${orbital}` ) );   }
+                {   if ( this.colorsEnabled )
+                    {   electronShellData[ shell ].push(new Electron(this.colorsExtended[i][1], `${orbital.substring(0, 2)}` ) );   }
+                    else
+                    {   electronShellData[ shell ].push(new Electron( 0x37ff37, `${orbital.substring(0, 2)}` ) );   }
+                }
             }
         }
 
-        return electronShellData.slice(1);
+        return [electronShellData.slice(1), orbitals];
     }
 }
 
@@ -188,11 +206,11 @@ class BohrAtomManager extends AbstractAtomManager
 {   // Initiation function
     createElectrons( scene )
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
-        {   scene.add(this.atom.bohrElectronShells[i].mesh);   }
+        {   scene.add( this.atom.bohrElectronShells[i].mesh );   }
 
         for ( let i = 0; i < this.atom.electrons.length; i++ ) // Iterate through multi-dimensional electron array and add them to the scene while setting their positions
         {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
-            {   scene.add(this.atom.electrons[i][j].mesh);
+            {   scene.add( this.atom.electrons[i][j].mesh );
                 let angle = ( j / this.atom.electrons[i].length ) * Math.PI * 2;
                 let orbitX = Math.cos( 0.5 + angle ) * ( 12 + ( i * 5 ));
                 let orbitZ = Math.sin( 0.5 + angle ) * ( 12 + ( i * 5 ));
@@ -203,14 +221,28 @@ class BohrAtomManager extends AbstractAtomManager
 
     // Animation function
     controlElectronMovement()
-    {   if (this.atom.rotateEnabled == true)
+    {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
-            for (let i = 0; i < this.atom.electrons.length; i++)
-            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
-                    let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                    let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                    this.atom.electrons[i][j].mesh.position.set(orbitX, 0, orbitZ);
+            if ( this.atom.colorsEnabled )
+            {   for (let i = 0; i < this.atom.electrons.length; i++)
+                {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                    {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
+                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                        this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );
+                        this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
+                    }
+                }
+            }
+            else
+            {   for (let i = 0; i < this.atom.electrons.length; i++)
+                {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+                    {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
+                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                        this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );
+                        this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
+                    }
                 }
             }
         }
