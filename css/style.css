@@ -24,7 +24,7 @@ html, body {
 
 .loadingScreenText {
   text-align: center;
-  font-family: "Roboto", sans-serif;
+  font-family: monospace;
   font-weight: bold;
   color: white;
   margin-left: auto;

@@ -5,12 +5,28 @@ import { Atom, QuantumAtomManager, BohrAtomManager } from './Components.js';
 import { ATOMS } from './Info.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { triviaText, triviaPool } from './../Main.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+let triviaText = document.getElementById('triviaText');
+let triviaPool = ['Iron is the most abundant metal in the universe!', 'Nonmetals in the third period and below can have an expanded octet!', 'Bismuth has the longest half-life of any radioactive element!', 'Manganese has 7 oxidation states!', 'Lead is the heaviest stable element!', "Hydrogen with a single neutron is called Deuterium!", 'In reality, over 99.9% of an atom is empty space!', 'Fluorine is the most electronegative atom!', "Francium has the largest atomic radius of any element!", 'The most recently discovered atom is Tennessine!'];
+triviaText.innerHTML = triviaPool[ Math.floor(Math.random() * triviaPool.length ) ];
+
+let atomDiv = document.createElement( 'div' );
+let atomNumDiv = document.createElement( 'div' );
+let atomMassDiv = document.createElement( 'div' );
+let labels = [ atomDiv, atomNumDiv, atomMassDiv ];
+
+for (let i = 0; i < labels.length; i++)
+{   labels[i].classList.add('label');
+    labels[i].classList.add('noDisplay');
+    if ( i > 0 )
+    {   labels[i].style.fontSize = '18px';   }
+}
 
 class App
 {   constructor( manager )
     {   this.scene = new THREE.Scene();
+        this.root = new THREE.Group();
         this.world = new CANNON.World( 0, 0, 0 );
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.labelRenderer = new CSS2DRenderer();
@@ -64,11 +80,18 @@ class App
     animate()
     {   requestAnimationFrame( this.animate );
         this.stats.begin();
-        if (this.manager.allBodiesStatic == true)
-        {   document.querySelector('#loadingScreen').style.display = 'none';   }
+        if (this.manager.allBodiesStatic == true) // Display loading screen if the model is not static
+        {   document.querySelector('#loadingScreen').style.display = 'none';
+            for (let i = 0; i < labels.length; i++)
+            {   labels[i].classList.remove('noDisplay');   }
+        }
         else
-        {   document.querySelector('#loadingScreen').style.display = 'flex';   }
+        {   document.querySelector('#loadingScreen').style.display = 'flex';
+            for (let i = 0; i < labels.length; i++)
+            {   labels[i].classList.add('noDisplay');   }
+        }
         this.renderer.render( this.scene, this.camera );
+        this.labelRenderer.render( this.scene, this.camera );
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
         this.world.step( 1 / 60 );
@@ -77,12 +100,31 @@ class App
     }
 
     initScene()
-    {   this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
+    {   this.scene.add( this.root );
+
+        this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
         this.camera.position.y = 10;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
-        // const axesHelper = new THREE.AxesHelper( 12 );
-        // this.scene.add( axesHelper );
+        atomDiv.textContent = `${this.manager.atom.name} (${this.manager.atom.atomicSymbol})`;
+        atomNumDiv.textContent = `Atomic Number: ${this.manager.atom.atomicNum}`;
+        atomMassDiv.textContent = `Isotope: ${this.manager.atom.atomicSymbol}-${this.manager.atom.atomicMass}`;
+
+        let atomLabel = new CSS2DObject( atomDiv );
+        let atomNumLabel = new CSS2DObject( atomNumDiv );
+        let atomMassLabel = new CSS2DObject( atomMassDiv );
+
+        atomLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + this.manager.atom.atomicNum / 20, 0 );
+        atomNumLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 3, 0 );
+        atomMassLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 6, 0 );
+
+        this.root.add( atomLabel );
+        this.root.add( atomNumLabel );
+        this.root.add( atomMassLabel );
+
+        atomLabel.layers.set( 0 );
+        atomNumLabel.layers.set( 0 );
+        atomMassLabel.layers.set( 0 );
 
         this.controls.minDistance = 15;
         this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
@@ -104,7 +146,7 @@ class App
 	    document.body.appendChild( this.stats.dom );
 
         const ambientLight = new THREE.AmbientLight( 0xffffff , 0.2 );
-		this.scene.add( ambientLight );
+		this.root.add( ambientLight );
 
         const spotLight = new THREE.SpotLight( 0xffffff,  1500 );
         spotLight.position.set( 10, 25, 0 );
@@ -112,7 +154,7 @@ class App
         spotLight.penumbra = 1;
         spotLight.decay = 2;
 	    spotLight.distance = 0;
-        this.scene.add( spotLight );
+        this.root.add( spotLight );
 
         // const spotLightHelper = new THREE.SpotLightHelper( spotLight );
         // this.scene.add( spotLightHelper );
@@ -122,6 +164,7 @@ class App
         // Temporary GUI
         let gui = new GUI();
 
+        // Default selection for atom model on page load
         let selection =
         {   atom: 'Helium',
             rotate: true
@@ -137,11 +180,32 @@ class App
         (   ( target ) =>
             {   let targetValue = target.value.toLowerCase();
                 let processedValue = targetValue.charAt(0).toUpperCase() + targetValue.slice(1);
-                this.manager.resetAtom( this.scene, this.world, new Atom(ATOMS[processedValue], ATOMS[processedValue].atomicNum, ATOMS[processedValue].atomicMass, ATOMS[processedValue].electronConfig, rotateFolder.controllers[0].object.rotate ) )
+                this.manager.resetAtom
+                (   this.root,
+                    this.world,
+                    new Atom
+                    (
+                        ATOMS[processedValue].name, // Element Name
+                        ATOMS[processedValue].atomicNum, // Atomic Number
+                        ATOMS[processedValue].atomicMass, // Atomic Mass
+                        ATOMS[processedValue].atomicSymbol, // Atomic Symbol
+                        ATOMS[processedValue].electronConfig, // Electron Configuration
+                        rotateFolder.controllers[0].object.rotate // Rotate boolean
+                    )
+                )
 
                 this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
                 this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
                 this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
+                atomDiv.textContent = `${this.manager.atom.name} (${this.manager.atom.atomicSymbol})`;
+                atomNumDiv.textContent = `Atomic Number: ${this.manager.atom.atomicNum}`;
+                atomMassDiv.textContent = `Isotope: ${this.manager.atom.atomicSymbol}-${this.manager.atom.atomicMass}`;
+
+                atomLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + this.manager.atom.atomicNum / 20, 0 );
+                atomNumLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 3, 0 );
+                atomMassLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 6, 0 );
+
                 triviaText.innerHTML = triviaPool[ Math.floor(Math.random() * triviaPool.length) ];
             }
         )
@@ -151,8 +215,8 @@ class App
             {   this.manager.atom.rotateEnabled = target.value;   }
         )
 
-        this.manager.createNucleus( this.scene, this.world );
-        this.manager.createElectrons( this.scene, this.world );
+        this.manager.createNucleus( this.root, this.world );
+        this.manager.createElectrons( this.root, this.world );
 
         this.animate();
     }

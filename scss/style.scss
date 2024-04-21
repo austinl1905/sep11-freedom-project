@@ -26,7 +26,7 @@ html, body
 
 .loadingScreenText
 {   text-align: center;
-    font-family: $font-1;
+    font-family: monospace;
     font-weight: bold;
     color: white;
     margin-left: auto;
@@ -38,5 +38,4 @@ html, body
 }
 
 #canvas
-{   z-index: 0;
-}
+{   z-index: 0;   }

@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 class Atom
-{   constructor( name, atomicNum, atomicMass, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true, extendedColorsEnabled = false )
+{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true, extendedColorsEnabled = false )
     {   if (colorsEnabled)
         {   this.colorsBasic = Object.entries
             (   {   _1s: 0x37ff30,
@@ -28,8 +28,10 @@ class Atom
                 }
             )
         }
+        this.name = name;
         this.atomicNum = atomicNum;
         this.atomicMass = atomicMass;
+        this.atomicSymbol = atomicSymbol;
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
         this.nucleons = this.initNucleus();
         this.electrons = this.initElectrons();
@@ -98,11 +100,11 @@ class AbstractAtomManager
 
     // Initialization function
     createElectrons( scene )
-    {   throw new Error('createElectrons not defined in base class;');   }
+    {   throw new Error('createElectrons not defined in base class');   }
 
     // Animation function
     controlElectronMovement( scene )
-    {   throw new Error('controlElectronMovement not defined in base class;');   }
+    {   throw new Error('controlElectronMovement not defined in base class');   }
 
     // Initiation function
     createNucleus( scene, world )
@@ -214,5 +216,6 @@ class BohrAtomManager extends AbstractAtomManager
         }
     }
 }
+
 
 export { Atom, QuantumAtomManager, BohrAtomManager };
