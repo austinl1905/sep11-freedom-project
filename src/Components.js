@@ -75,7 +75,7 @@ class Atom
     {   const orbitals = this.electronConfigurationExtended.split(' ');
         let electronShellData = [];
 
-        for ( let i = 0; i < orbitals.length; i++ ) // hey hey check out my crappy variable naming
+        for ( let i = 0; i < orbitals.length; i++ )
         {   const orbital = orbitals[i];
             const [ shell, count ] = orbital.match(/\d+/g);
             const electronCount = parseInt( count );
@@ -140,6 +140,7 @@ class AbstractAtomManager
     controlNucleonMovement()
     {   this.frameCount++; // Because for some odd reason it takes a few frames for the nucleons to move
 
+        // Bring protons and neutrons to the origin
         for ( let i = 0; i < this.atom.nucleons.length; i++ )
         {   this.atom.nucleons[i].body.force.set
             (   -this.atom.nucleons[i].body.position.x * 100,
@@ -147,6 +148,7 @@ class AbstractAtomManager
                 -this.atom.nucleons[i].body.position.z * 100,
             )
 
+            // Stop moving the nucleus model if their movement is below a threshold
             if (this.frameCount > 60)
             {   if (this.atom.nucleons[i].body.velocity.lengthSquared() < this.minVelocitySquared || this.atom.nucleons[i].body.angularVelocity.lengthSquared() < this.minAngularVelocitySquared)
                 {   this.atom.nucleons[i].body.type = CANNON.Body.STATIC;   }
@@ -156,6 +158,7 @@ class AbstractAtomManager
             this.atom.nucleons[i].mesh.quaternion.copy( this.atom.nucleons[i].body.quaternion );
         }
 
+        // Enable boolean in order to remove the loading screen
         if ( this.atom.nucleons.every( (nucleon) => nucleon.body.type == CANNON.Body.STATIC ) )
         {   this.allBodiesStatic = true;   }
     }
@@ -176,7 +179,8 @@ class AbstractAtomManager
 
         if (atom)
         {   this.atom = atom;
-            this.frameCount = 0; // :skull:
+            // Reset framerate and enable loading screen
+            this.frameCount = 0;
             this.allBodiesStatic = false;
 
             this.createNucleus( scene, world );
@@ -216,7 +220,17 @@ class BohrAtomManager extends AbstractAtomManager
     {   for (let i = 0; i < this.atom.bohrElectronShells.length; i++)
         {   scene.add( this.atom.bohrElectronShells[i].mesh );   }
 
-        for ( let i = 0; i < this.atom.electrons.length; i++ ) // Iterate through multi-dimensional electron array and add them to the scene while setting their positions
+        /* Iterate through multi-dimensional electron array and add them to the scene while setting their positions
+           - The angle (in radians) is obtained by dividing the iterator by the length of the shell and multiplying it by the angle of a circle.
+             By doing this, the electrons will be evenly distributed on each shell.
+            - Ex: Nitrogen has 5 electrons in the second shell. The first electron is 1. 1/5 = 0.2, multiplied by 2PI is 0.4PI, the angle the electron will be positioned.
+                  The second electron is 2. 2/5 = 0.4, multiplied by 2PI is 0.8PI, and so on
+           - The x-coordinate is determined by taking the cosine of the radius of the shell multiplied by the adjusted angle ( to be more aesthetically pleasing )
+              The z-coordinate ( technically the y-coordinate because the function plots electrons on a 2D plane) is determined in the same way but with using the sine function.
+            - For each iteration of i (each shell), the electrons in that shell gets plotted on the circumference of the circle (the circle radius being determined by the i)
+             - So, for the first shell, the radius will be 12 (i = 0). In the second shell, the radius is 17 (i = 0). And so on.
+        */
+        for ( let i = 0; i < this.atom.electrons.length; i++ )
         {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
             {   scene.add( this.atom.electrons[i][j].mesh );
                 let angle = ( j / this.atom.electrons[i].length ) * Math.PI * 2;
@@ -227,8 +241,13 @@ class BohrAtomManager extends AbstractAtomManager
         }
     }
 
+    // Animation function
     controlElectronColoration( intersectedObj )
-    {   if ( this.atom.colorsEnabled )
+    {   /* This function takes in the intersected object ( which would be an electron but really I'm just too lazy to filter out the rest of the meshes. It makes a minimal effect on performance anyways)
+           The reason this is done is to prevent the color of a electrons to immediately change back colors when hovered upon.
+           Is it necessary? Maybe not. But I'm not smart enough to figure out a better solution
+        */
+        if ( this.atom.colorsEnabled )
         {   for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
                 {   if (this.atom.electrons[i][j].mesh != intersectedObj)
@@ -247,7 +266,7 @@ class BohrAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    controlElectronMovement()
+    controlElectronMovement() // This is essentially the same code used when creating electrons except that time is used as well ( to repeatedly reposition the electrons in each animation call)
     {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
             for (let i = 0; i < this.atom.electrons.length; i++)

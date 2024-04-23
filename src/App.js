@@ -41,6 +41,7 @@ class App
         this.manager = manager;
         this.intersectedObject;
         this.stats = new Stats();
+        this.labelsEnabled = true;
     }
 
     onPointerMove( event )
@@ -101,7 +102,8 @@ class App
     }
 
     initScene()
-    {   this.scene.add( this.root );
+    {   this.camera.layers.enableAll();
+        this.scene.add( this.root );
 
         this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
         this.camera.position.y = 10;
@@ -123,9 +125,9 @@ class App
         this.root.add( atomNumLabel );
         this.root.add( atomMassLabel );
 
-        atomLabel.layers.set( 0 );
-        atomNumLabel.layers.set( 0 );
-        atomMassLabel.layers.set( 0 );
+        atomLabel.layers.set( 1 );
+        atomNumLabel.layers.set( 1 );
+        atomMassLabel.layers.set( 1 );
 
         this.controls.minDistance = 15;
         this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
@@ -169,7 +171,8 @@ class App
         let selection =
         {   atom: 'Helium',
             rotate: true,
-            basic: true
+            basic: true,
+            labels: true
         };
 
         let atomFolder = gui.addFolder('Atom');
@@ -179,6 +182,8 @@ class App
         atomFolder.open();
         let colorFolder = gui.addFolder('Colors');
         colorFolder.add( selection, 'basic', [true, false] );
+        let labelFolder = gui.addFolder('Labels');
+        labelFolder.add( selection, 'labels', [true, false] );
 
         atomFolder.onFinishChange
         (   ( target ) =>
@@ -223,6 +228,13 @@ class App
         colorFolder.onChange
         (   ( target ) =>
             {   this.manager.atom.colorsEnabled = target.value;   }
+        )
+
+        labelFolder.onChange
+        (   ( target ) =>
+            {   this.camera.layers.toggle( 1 );
+
+            }
         )
 
         this.manager.createNucleus( this.root, this.world );
