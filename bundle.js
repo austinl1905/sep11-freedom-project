@@ -923,24 +923,6 @@ class ElectronShell
     }
 }
 
-class ElectronOrbitalFactory
-{   constructor( atom )
-    {   this.atom = atom;   }
-
-    generateOrbitals()
-    {   let pauliElectronSpins = this.atom.electrons;
-        for (let i = 0; i < arr.length; i++)
-        {   let subArray = pauliElectronSpins[i];
-            if (subArray.length > 2)
-            {   let modifiedSubArray = [];
-                for (let j = 0; j < subArray.length; j += 2)
-                {   modifiedSubArray.push( subArray.slice( j, j + 2 ) );   }
-                pauliElectronSpins[i] = modifiedSubArray;
-            }
-        }
-    }
-}
-
 class Atom
 {   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true)
     {   this.colorsEnabled = colorsEnabled;
