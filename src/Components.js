@@ -283,4 +283,4 @@ class BohrAtomManager extends AbstractAtomManager
 }
 
 
-export { Atom, QuantumAtomManager, BohrAtomManager };
+export { Atom, BohrAtomManager };

@@ -1,7 +1,7 @@
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Atom, QuantumAtomManager, BohrAtomManager } from './Components.js';
+import { Atom, BohrAtomManager } from './Components.js';
 import { ATOMS } from './Info.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
