@@ -54,7 +54,7 @@ class Atom
     {   let nucleons = [];
         for ( let i = 0; i < this.atomicMass; i++ )
         {   if ( i < this.atomicMass - this.atomicNum )
-            {   nucleons.push( new Neutron() )   }
+            {   nucleons.push( new Neutron() );   }
             else
             {   nucleons.push( new Proton() );   }
         }
@@ -192,24 +192,24 @@ class AbstractAtomManager
 /*
     - Concrete manager for wave mechanical atomic model
 */
-class QuantumAtomManager extends AbstractAtomManager
-{   // Initiation Function
-    createElectrons( scene )
-    {
+// class QuantumAtomManager extends AbstractAtomManager
+// {   // Initiation Function
+//     createElectrons( scene )
+//     {
 
-    }
+//     }
 
-    // Animation function
-    controlElectronMovement()
-    {
+//     // Animation function
+//     controlElectronMovement()
+//     {
 
-    }
+//     }
 
-    controlElectronColoration()
-    {
+//     controlElectronColoration()
+//     {
 
-    }
-}
+//     }
+// }
 
 /*
     - Concrete manager for Bohr atomic model

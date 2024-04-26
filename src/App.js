@@ -232,9 +232,7 @@ class App
 
         labelFolder.onChange
         (   ( target ) =>
-            {   this.camera.layers.toggle( 1 );
-
-            }
+            {   this.camera.layers.toggle( 1 );   }
         )
 
         this.manager.createNucleus( this.root, this.world );

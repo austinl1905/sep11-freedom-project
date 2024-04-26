@@ -74,14 +74,32 @@ class Electron
 }
 
 class ElectronShell
-{   constructor(radius = 12)
+{   constructor( radius = 12 )
     {   this.radius = radius;
         this.name = `Electron Shell ${((this.radius - 12) / 5) + 1 }`;
         this.mesh = new THREE.Mesh
-        (   new THREE.TorusGeometry(this.radius, 0.05),
+        (   new THREE.TorusGeometry( this.radius, 0.05 ),
             new THREE.MeshBasicMaterial(),
         );
-        this.mesh.rotation.set(Math.PI / 2, 0, 0);
+        this.mesh.rotation.set( Math.PI / 2, 0, 0 );
+    }
+}
+
+class ElectronOrbitalFactory
+{   constructor( atom )
+    {   this.atom = atom;   }
+
+    generateOrbitals()
+    {   let pauliElectronSpins = this.atom.electrons;
+        for (let i = 0; i < arr.length; i++)
+        {   let subArray = pauliElectronSpins[i];
+            if (subArray.length > 2)
+            {   let modifiedSubArray = [];
+                for (let j = 0; j < subArray.length; j += 2)
+                {   modifiedSubArray.push( subArray.slice( j, j + 2 ) );   }
+                pauliElectronSpins[i] = modifiedSubArray;
+            }
+        }
     }
 }
 
