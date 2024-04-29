@@ -42,10 +42,9 @@ class Atom
         this.atomicMass = atomicMass;
         this.atomicSymbol = atomicSymbol;
         this.electronConfigurationExtended = electronConfigurationExtended; // Ex: '1s2 2s2 2p4'
+        this.electrons = this.initElectrons();
+        this.totalElectronsPerShell = this.getElectronData();
         this.nucleons = this.initNucleus();
-        this.electronData = this.initElectrons();
-        this.electrons = this.electronData[0];
-        this.orbitals = this.electronData[1];
         this.bohrElectronShells = this.initBohrShells();
         this.rotateEnabled = rotateEnabled;
     }
@@ -66,39 +65,57 @@ class Atom
     initBohrShells()
     {   let electronShells = [];
         for (let i = 0; i < this.electrons.length; i++)
-        {   electronShells.push( new ElectronShell( 12 + (i * 5) ) );   }
+        {   electronShells.push( new ElectronShell( 12 + ( i * 5 ) ) );   }
         return electronShells;
     }
 
      // This code is atrocious and I'm sorry
     initElectrons()
-    {   const orbitals = this.electronConfigurationExtended.split(' ');
-        let electronShellData = [];
+    {   let orbitals = this.electronConfigurationExtended.split(' ');
+        let electrons = [];
+        let subshells =
+        {   's': 0,
+            'p': 1,
+            'd': 2,
+            'f': 3
+        }
+        let subshellCount = 0;
 
-        for ( let i = 0; i < orbitals.length; i++ )
-        {   const orbital = orbitals[i];
-            const [ shell, count ] = orbital.match(/\d+/g);
-            const electronCount = parseInt( count );
-
-            if ( electronShellData[shell] )
-            {   for ( let j = 0; j < electronCount; j++ )
-                {   if ( this.colorsEnabled )
-                    {   electronShellData[ shell ].push(new Electron(this.colorsExtended[i][1], `${orbital.substring(0, 2)}` ) );   }
-                    else
-                    {   electronShellData[ shell ].push(new Electron( 0x37ff37, `${orbital.substring(0, 2)}` ) );   }
+        for (let i = 0; i < orbitals.length; i++)
+        {   let [shell, subshell, count] = orbitals[i].match(/\d+|[spdf]/gi);
+            count = parseInt( count );
+            if (electrons[shell - 1])
+            {   if (electrons[shell - 1][subshells[subshell]])
+                {   for (let j = 0; j < count; j++)
+                    {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
                 }
-            } else {
-                electronShellData[shell] = [];
-                for ( let j = 0; j < electronCount; j++ )
-                {   if ( this.colorsEnabled )
-                    {   electronShellData[ shell ].push(new Electron(this.colorsExtended[i][1], `${orbital.substring(0, 2)}` ) );   }
-                    else
-                    {   electronShellData[ shell ].push(new Electron( 0x37ff37, `${orbital.substring(0, 2)}` ) );   }
+                else
+                {   electrons[shell - 1][subshells[subshell]] = [];
+                    for (let j = 0; j < count; j++)
+                    {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
                 }
+            }
+            else
+            {   electrons[shell - 1] = [];
+                electrons[shell - 1][subshells[subshell]] = [];
+                for (let j = 0; j < count; j++)
+                {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
             }
         }
 
-        return [electronShellData.slice(1), orbitals];
+        return electrons;
+    }
+
+    getElectronData()
+    {   let totalElectronsPerShell = [];
+        for (let i = 0; i < this.electrons.length; i++)
+        {   let electronsPerShell = 0;
+            for ( let j = 0; j < this.electrons[i].length; j++)
+            {   electronsPerShell += this.electrons[i][j].length;   }
+            totalElectronsPerShell.push(electronsPerShell)
+        }
+
+        return totalElectronsPerShell;
     }
 }
 
@@ -169,7 +186,9 @@ class AbstractAtomManager
 
         for (let i = 0; i < this.atom.electrons.length; i++)
         {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-            {   scene.remove(this.atom.electrons[i][j].mesh);   }
+            {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                {   scene.remove(this.atom.electrons[i][j][k].mesh);   }
+            }
         }
 
         for ( let i = 0; i < this.atom.nucleons.length; i++ )
@@ -230,13 +249,17 @@ class BohrAtomManager extends AbstractAtomManager
             - For each iteration of i (each shell), the electrons in that shell gets plotted on the circumference of the circle (the circle radius being determined by the i)
              - So, for the first shell, the radius will be 12 (i = 0). In the second shell, the radius is 17 (i = 0). And so on.
         */
-        for ( let i = 0; i < this.atom.electrons.length; i++ )
-        {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
-            {   scene.add( this.atom.electrons[i][j].mesh );
-                let angle = ( j / this.atom.electrons[i].length ) * Math.PI * 2;
-                let orbitX = Math.cos( 0.5 + angle ) * ( 12 + ( i * 5 ));
-                let orbitZ = Math.sin( 0.5 + angle ) * ( 12 + ( i * 5 ));
-                this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
+        iterateShells: for ( let i = 0; i < this.atom.electrons.length; i++ )
+        {   let electronShellIterator = 0;
+            iterateSubshells: for ( let j = 0; j < this.atom.electrons[i].length; j++ )
+            {   iterateElectrons: for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                {   electronShellIterator++;
+                    scene.add( this.atom.electrons[i][j][k].mesh );
+                    let angle = ( electronShellIterator / this.atom.totalElectronsPerShell[i] ) * Math.PI * 2;
+                    let orbitX = Math.cos( 0.5 + angle ) * ( 12 + ( i * 5 ));
+                    let orbitZ = Math.sin( 0.5 + angle ) * ( 12 + ( i * 5 ));
+                    this.atom.electrons[i][j][k].mesh.position.set( orbitX, 0, orbitZ );
+                }
             }
         }
     }
@@ -250,16 +273,20 @@ class BohrAtomManager extends AbstractAtomManager
         if ( this.atom.colorsEnabled )
         {   for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   if (this.atom.electrons[i][j].mesh != intersectedObj)
-                    {   this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+                {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                    {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
+                        {   this.atom.electrons[i][j][k].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+                    }
                 }
             }
         }
         else
         {   for (let i = 0; i < this.atom.electrons.length; i++)
             {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   if (this.atom.electrons[i][j].mesh != intersectedObj)
-                    {   this.atom.electrons[i][j].mesh.material.color.set( 0x37ff37 );   }
+                {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                    {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
+                        {   this.atom.electrons[i][j][k].mesh.material.color.set( 0x37ff37 );   }
+                    }
                 }
             }
         }
@@ -269,13 +296,16 @@ class BohrAtomManager extends AbstractAtomManager
     controlElectronMovement() // This is essentially the same code used when creating electrons except that time is used as well ( to repeatedly reposition the electrons in each animation call)
     {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
-            for (let i = 0; i < this.atom.electrons.length; i++)
-            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   let angle = (j / this.atom.electrons[i].length) * Math.PI * 2;
-                    let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                    let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                    this.atom.electrons[i][j].mesh.material.color.set( this.atom.colorsBasic[i][1] );
-                    this.atom.electrons[i][j].mesh.position.set( orbitX, 0, orbitZ );
+            iterateShells: for (let i = 0; i < this.atom.electrons.length; i++)
+            {   let electronShellIterator = 0;
+                iterateSubshells: for (let j = 0; j < this.atom.electrons[i].length; j++)
+                {   iterateElectrons: for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                    {   electronShellIterator++;
+                        let angle = (electronShellIterator / this.atom.totalElectronsPerShell[i]) * Math.PI * 2;
+                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
+                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
+                        this.atom.electrons[i][j][k].mesh.position.set( orbitX, 0, orbitZ );
+                    }
                 }
             }
         }

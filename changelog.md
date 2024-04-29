@@ -3,10 +3,14 @@
 I just really wanted to make a changelog. I might make this into a library or something. Who knows.
 
 All changes to this project from 2024-04-06 onwards are documented here.
-## [2.1.0] 2024-04-21
+## [1.3.0] 2024-04-28
+### Changed
+* Added postprocessing outline effect to replace original raycasting output.
+* Major refactoring to the structure of the Atom class and AtomManagers, specifically with the electrons property.
+## [1.2.1] 2024-04-21
 ### Added
 * Implemented color in GUI
-## [2.0.0] 2024-04-20
+## [1.2.0] 2024-04-20
 ### Added
 * New boolean to enable colors for atoms (Not yet implemented in GUI)
 * Labels for every atom.

@@ -6,6 +6,12 @@ import { ATOMS } from './Info.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 
 let triviaText = document.getElementById('triviaText');
 let triviaPool = ['Iron is the most abundant metal in the universe!', 'Nonmetals in the third period and below can have an expanded octet!', 'Bismuth has the longest half-life of any radioactive element!', 'Manganese has 7 oxidation states!', 'Lead is the heaviest stable element!', "Hydrogen with a single neutron is called Deuterium!", 'In reality, over 99.9% of an atom is empty space!', 'Fluorine is the most electronegative atom!', "Francium has the largest atomic radius of any element!", 'The most recently discovered atom is Tennessine!'];
@@ -42,6 +48,17 @@ class App
         this.intersectedObject;
         this.stats = new Stats();
         this.labelsEnabled = true;
+
+        this.composer = new EffectComposer( this.renderer );
+        this.renderPass = new RenderPass( this.scene, this.camera );
+        this.composer.addPass( this.renderPass );
+        this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), this.scene, this.camera );
+        this.composer.addPass( this.outlinePass );
+        this.outputPass = new OutputPass();
+        this.composer.addPass( this.outputPass );
+        this.effectFXAA = new ShaderPass( FXAAShader );
+        this.effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+        this.composer.addPass( this.effectFXAA );
     }
 
     onPointerMove( event )
@@ -54,20 +71,22 @@ class App
         // Highlights intersected objects
 
         if ( this.intersectedObject ) { // Check if value of intersectedObject is not null
-            this.intersectedObject.material = this.intersectedObject.originalMaterial;
+            // this.intersectedObject.material = this.intersectedObject.originalMaterial;
             this.intersectedObject = null;
+            this.outlinePass.selectedObjects = [];
         }
 
         if ( intersects.length > 0 )
         {   let intersectedObject = intersects[0].object;
-            intersectedObject.originalMaterial = intersectedObject.material.clone();
-            intersectedObject.material = new THREE.MeshBasicMaterial
-            (   {   opacity: 0.7,
-                    transparent: true,
-                    color: 0xffffff
-                }
-            );
+            // intersectedObject.originalMaterial = intersectedObject.material.clone();
+            // intersectedObject.material = new THREE.MeshBasicMaterial
+            // (   {   opacity: 0.7,
+            //         transparent: true,
+            //         color: 0xffffff
+            //     }
+            // );
             this.intersectedObject = intersectedObject;
+            this.outlinePass.selectedObjects = [this.intersectedObject];
         }
     }
 
@@ -75,7 +94,8 @@ class App
     {   this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.labelRenderer.setSize(window.innerWidth, window.innerHeight );
+        this.labelRenderer.setSize( window.innerWidth, window.innerHeight );
+        this.composer.setSize( window.innerWidth, window.innerHeight );
     }
 
     animate()
@@ -93,6 +113,7 @@ class App
         }
         this.renderer.render( this.scene, this.camera );
         this.labelRenderer.render( this.scene, this.camera );
+        this.composer.render();
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
         this.manager.controlElectronColoration( this.intersectedObject );
@@ -108,6 +129,8 @@ class App
         this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
         this.camera.position.y = 10;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
+        this.composer.setSize( window.innerWidth, window.innerHeight );
 
         atomDiv.textContent = `${this.manager.atom.name} (${this.manager.atom.atomicSymbol})`;
         atomNumDiv.textContent = `Atomic Number: ${this.manager.atom.atomicNum}`;

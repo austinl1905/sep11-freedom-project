@@ -26,6 +26,17 @@ class App
 
         this.scene.background = new THREE.Color( 0x333333 );
 
+        let placeholderGeometry = new THREE.SphereGeometry( 5, 32, 32 );
+        let placeholderMaterial = new THREE.MeshBasicMaterial
+        (   {   color: 0xff0000,
+                side: THREE.DoubleSide,
+                wireframe: true,
+            }
+        )
+        let placeholderMesh = new THREE.Mesh( placeholderGeometry, placeholderMaterial );
+
+        this.scene.add( placeholderMesh );
+
         window.addEventListener( 'resize', this.onWindowResize, false );
 
         const controls = new OrbitControls( this.camera, this.renderer.domElement );
@@ -35,9 +46,7 @@ class App
     }
 
     initLight()
-	{
-
-        const spotLight = new THREE.SpotLight( 0xffffff, 15, 0, Math.PI);
+	{   const spotLight = new THREE.SpotLight( 0xffffff, 15, 0, Math.PI);
         spotLight.position.set(2, 3.5, 0)
         this.scene.add(spotLight);
 
