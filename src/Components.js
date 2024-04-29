@@ -87,19 +87,19 @@ class Atom
             if ( electrons[ shell - 1 ] )
             {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
                 {   for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
                 }
                 else
                 {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
                     for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
                 }
             }
             else
-            {   electrons[shell - 1] = [];
-                electrons[shell - 1][subshells[subshell]] = [];
-                for (let j = 0; j < count; j++)
-                {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
+            {   electrons[ shell - 1 ] = [];
+                electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
+                for ( let j = 0; j < count; j++ )
+                {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ] ) );   }
             }
         }
 
@@ -108,11 +108,11 @@ class Atom
 
     getElectronData()
     {   let totalElectronsPerShell = [];
-        for (let i = 0; i < this.electrons.length; i++)
+        for ( let i = 0; i < this.electrons.length; i++ )
         {   let electronsPerShell = 0;
-            for ( let j = 0; j < this.electrons[i].length; j++)
-            {   electronsPerShell += this.electrons[i][j].length;   }
-            totalElectronsPerShell.push(electronsPerShell)
+            for ( let j = 0; j < this.electrons[ i ].length; j++ )
+            {   electronsPerShell += this.electrons[ i ][ j ].length;   }
+            totalElectronsPerShell.push( electronsPerShell )
         }
 
         return totalElectronsPerShell;
