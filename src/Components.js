@@ -81,18 +81,18 @@ class Atom
         }
         let subshellCount = 0;
 
-        for (let i = 0; i < orbitals.length; i++)
-        {   let [shell, subshell, count] = orbitals[i].match(/\d+|[spdf]/gi);
+        for ( let i = 0; i < orbitals.length; i++ )
+        {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
             count = parseInt( count );
-            if (electrons[shell - 1])
-            {   if (electrons[shell - 1][subshells[subshell]])
-                {   for (let j = 0; j < count; j++)
-                    {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
+            if ( electrons[ shell - 1 ] )
+            {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                {   for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
                 }
                 else
-                {   electrons[shell - 1][subshells[subshell]] = [];
-                    for (let j = 0; j < count; j++)
-                    {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
+                {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                    for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
                 }
             }
             else
@@ -281,10 +281,10 @@ class BohrAtomManager extends AbstractAtomManager
             }
         }
         else
-        {   for (let i = 0; i < this.atom.electrons.length; i++)
-            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
-                    {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
+        {   for ( let i = 0; i < this.atom.electrons.length; i++ )
+            {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
+                {   for ( let k = 0; k < this.atom.electrons[i][j].length; k++ )
+                    {   if ( this.atom.electrons[i][j][k].mesh != intersectedObj )
                         {   this.atom.electrons[i][j][k].mesh.material.color.set( 0x37ff37 );   }
                     }
                 }
@@ -296,15 +296,15 @@ class BohrAtomManager extends AbstractAtomManager
     controlElectronMovement() // This is essentially the same code used when creating electrons except that time is used as well ( to repeatedly reposition the electrons in each animation call)
     {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
-            iterateShells: for (let i = 0; i < this.atom.electrons.length; i++)
+            iterateShells: for ( let i = 0; i < this.atom.electrons.length; i++ )
             {   let electronShellIterator = 0;
-                iterateSubshells: for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   iterateElectrons: for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+                iterateSubshells: for ( let j = 0; j < this.atom.electrons[i].length; j++ )
+                {   iterateElectrons: for ( let k = 0; k < this.atom.electrons[ i ][ j ].length; k++ )
                     {   electronShellIterator++;
-                        let angle = (electronShellIterator / this.atom.totalElectronsPerShell[i]) * Math.PI * 2;
-                        let orbitX = Math.cos(time * 0.5 + angle) * (12 + (i * 5));
-                        let orbitZ = Math.sin(time * 0.5 + angle) * (12 + (i * 5));
-                        this.atom.electrons[i][j][k].mesh.position.set( orbitX, 0, orbitZ );
+                        let angle = ( electronShellIterator / this.atom.totalElectronsPerShell[ i ] ) * Math.PI * 2;
+                        let orbitX = Math.cos( time * 0.5 + angle ) * (12 + ( i * 5 ));
+                        let orbitZ = Math.sin( time * 0.5 + angle ) * (12 + ( i * 5 ));
+                        this.atom.electrons[ i ][ j ][ k ].mesh.position.set( orbitX, 0, orbitZ );
                     }
                 }
             }
