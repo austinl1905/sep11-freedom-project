@@ -1,30 +1,42 @@
+// Core imports
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Atom, BohrAtomManager } from './Components.js';
-import { ATOMS } from './Info.js';
+// Misc imports
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+// Renderer imports
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+// Control imports
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Postprocessing imports
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+// Module imports
+import { Atom, BohrAtomManager } from './Components.js';
+import { ATOMS } from './Info.js';
 
+// Just for fun
 let triviaText = document.getElementById('triviaText');
 let triviaPool = ['Iron is the most abundant metal in the universe!', 'Nonmetals in the third period and below can have an expanded octet!', 'Bismuth has the longest half-life of any radioactive element!', 'Manganese has 7 oxidation states!', 'Lead is the heaviest stable element!', "Hydrogen with a single neutron is called Deuterium!", 'In reality, over 99.9% of an atom is empty space!', 'Fluorine is the most electronegative atom!', "Francium has the largest atomic radius of any element!", 'The most recently discovered atom is Tennessine!'];
 triviaText.innerHTML = triviaPool[ Math.floor(Math.random() * triviaPool.length ) ];
 
+/*  To be honest, it's kind of weird for me to shove every single global variable into the constructor of the App.
+    But it also feels weird to have code that isn't a class definition in the App module. So this is the compromise I've come to.
+    - Div elements to be used for the CSS rendering.
+    - I haven't figured out how to access styles from external sheets so I have to add some of my CSS in the HTML style tag.
+*/
 let atomDiv = document.createElement( 'div' );
 let atomNumDiv = document.createElement( 'div' );
 let atomMassDiv = document.createElement( 'div' );
 let labels = [ atomDiv, atomNumDiv, atomMassDiv ];
 
-for (let i = 0; i < labels.length; i++)
-{   labels[i].classList.add('label');
-    labels[i].classList.add('noDisplay');
+for ( let i = 0; i < labels.length; i++ )
+{   labels[ i ].classList.add( 'label' );
+    labels[ i ].classList.add( 'noDisplay' );
     if ( i > 0 )
     {   labels[i].style.fontSize = '18px';   }
 }
@@ -32,7 +44,7 @@ for (let i = 0; i < labels.length; i++)
 class App
 {   constructor( manager )
     {   this.scene = new THREE.Scene();
-        this.root = new THREE.Group();
+        this.root = new THREE.Group(); // Sort of redundant group but there's no good reason to revert it. Also, root sounds cooler than scene.
         this.world = new CANNON.World( 0, 0, 0 );
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.labelRenderer = new CSS2DRenderer();
@@ -56,7 +68,7 @@ class App
         this.composer.addPass( this.outlinePass );
         this.outputPass = new OutputPass();
         this.composer.addPass( this.outputPass );
-        this.effectFXAA = new ShaderPass( FXAAShader );
+        this.effectFXAA = new ShaderPass( FXAAShader ); // For antialiasing
         this.effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
         this.composer.addPass( this.effectFXAA );
     }
@@ -66,27 +78,19 @@ class App
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         this.raycaster.setFromCamera( this.pointer, this.camera );
-        let intersects = this.raycaster.intersectObject(this.scene, true);
+        let intersects = this.raycaster.intersectObject( this.scene, true );
 
         // Highlights intersected objects
 
         if ( this.intersectedObject ) { // Check if value of intersectedObject is not null
-            // this.intersectedObject.material = this.intersectedObject.originalMaterial;
             this.intersectedObject = null;
             this.outlinePass.selectedObjects = [];
         }
 
         if ( intersects.length > 0 )
-        {   let intersectedObject = intersects[0].object;
-            // intersectedObject.originalMaterial = intersectedObject.material.clone();
-            // intersectedObject.material = new THREE.MeshBasicMaterial
-            // (   {   opacity: 0.7,
-            //         transparent: true,
-            //         color: 0xffffff
-            //     }
-            // );
+        {   let intersectedObject = intersects[ 0 ].object;
             this.intersectedObject = intersectedObject;
-            this.outlinePass.selectedObjects = [this.intersectedObject];
+            this.outlinePass.selectedObjects = [ this.intersectedObject ];
         }
     }
 
@@ -101,15 +105,15 @@ class App
     animate()
     {   requestAnimationFrame( this.animate );
         this.stats.begin();
-        if (this.manager.allBodiesStatic == true) // Display loading screen if the model is not static
-        {   document.querySelector('#loadingScreen').style.display = 'none';
-            for (let i = 0; i < labels.length; i++)
-            {   labels[i].classList.remove('noDisplay');   }
+        if ( this.manager.allBodiesStatic == true ) // Display loading screen if the model is not static
+        {   document.querySelector( '#loadingScreen' ).style.display = 'none';
+            for ( let i = 0; i < labels.length; i++ )
+            {   labels[i].classList.remove( 'noDisplay' );   }
         }
         else
-        {   document.querySelector('#loadingScreen').style.display = 'flex';
-            for (let i = 0; i < labels.length; i++)
-            {   labels[i].classList.add('noDisplay');   }
+        {   document.querySelector( '#loadingScreen' ).style.display = 'flex';
+            for ( let i = 0; i < labels.length; i++ )
+            {   labels[ i ].classList.add( 'noDisplay' );   }
         }
         this.renderer.render( this.scene, this.camera );
         this.labelRenderer.render( this.scene, this.camera );
@@ -126,7 +130,8 @@ class App
     {   this.camera.layers.enableAll();
         this.scene.add( this.root );
 
-        this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
+        // Scale the depth of the camera depending on the radius of the atom
+        this.camera.position.z = this.manager.atom.bohrElectronShells[ this.manager.atom.bohrElectronShells.length - 1 ].radius + 30;
         this.camera.position.y = 10;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
@@ -140,6 +145,7 @@ class App
         let atomNumLabel = new CSS2DObject( atomNumDiv );
         let atomMassLabel = new CSS2DObject( atomMassDiv );
 
+        // Set the position of the labels based on the size of the nucleus 
         atomLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + this.manager.atom.atomicNum / 20, 0 );
         atomNumLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 3, 0 );
         atomMassLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 6, 0 );
