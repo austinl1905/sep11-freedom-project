@@ -145,7 +145,7 @@ class App
         let atomNumLabel = new CSS2DObject( atomNumDiv );
         let atomMassLabel = new CSS2DObject( atomMassDiv );
 
-        // Set the position of the labels based on the size of the nucleus 
+        // Set the position of the labels based on the size of the nucleus
         atomLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + this.manager.atom.atomicNum / 20, 0 );
         atomNumLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 3, 0 );
         atomMassLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 6, 0 );
@@ -200,7 +200,7 @@ class App
         let selection =
         {   atom: 'Helium',
             rotate: true,
-            basic: true,
+            energy: true,
             labels: true
         };
 
