@@ -210,7 +210,7 @@ class App
         rotateFolder.add( selection, 'rotate', [true, false] );
         atomFolder.open();
         let colorFolder = gui.addFolder('Colors');
-        colorFolder.add( selection, 'basic', [true, false] );
+        colorFolder.add( selection, 'principal energy level', [true, false] );
         let labelFolder = gui.addFolder('Labels');
         labelFolder.add( selection, 'labels', [true, false] );
 
