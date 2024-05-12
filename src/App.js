@@ -120,7 +120,7 @@ class App
         this.composer.render();
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
-        this.manager.controlElectronColoration( this.intersectedObject );
+        // this.manager.controlElectronColoration( this.intersectedObject );
         this.world.step( 1 / 60 );
         this.controls.update;
         this.stats.end();
@@ -198,19 +198,19 @@ class App
 
         // Default selection for atom model on page load
         let selection =
-        {   atom: 'Helium',
-            rotate: true,
-            energy: true,
-            labels: true
+        {   'atom': 'Helium',
+            'animate': true,
+            'mode': 'energy-level',
+            'labels': true
         };
 
         let atomFolder = gui.addFolder('Atom');
         atomFolder.add( selection, 'atom');
-        let rotateFolder = gui.addFolder('Rotate');
-        rotateFolder.add( selection, 'rotate', [true, false] );
+        let rotateFolder = gui.addFolder('Animation');
+        rotateFolder.add( selection, 'animate', [true, false] );
         atomFolder.open();
         let colorFolder = gui.addFolder('Colors');
-        colorFolder.add( selection, 'principal energy level', [true, false] );
+        colorFolder.add( selection, 'mode', ['energy-level', 'energy-sublevel', 'none'] );
         let labelFolder = gui.addFolder('Labels');
         labelFolder.add( selection, 'labels', [true, false] );
 
@@ -228,8 +228,8 @@ class App
                         ATOMS[processedValue].atomicMass, // Atomic Mass
                         ATOMS[processedValue].atomicSymbol, // Atomic Symbol
                         ATOMS[processedValue].electronConfig, // Electron Configuration
-                        rotateFolder.controllers[0].object.rotate, // Rotate boolean
-                        colorFolder.controllers[0].object.basic, // Colors boolean
+                        rotateFolder.controllers[0].object.animate, // Rotate boolean
+                        colorFolder.controllers[0].object.mode, // Colors
                     )
                 )
 
@@ -254,9 +254,23 @@ class App
             {   this.manager.atom.rotateEnabled = target.value;   }
         )
 
-        colorFolder.onChange
+        colorFolder.onChange // Redrawing the atom every time the user wants to change colors because FUCK YOU HAHAHAHAHAHAHA
         (   ( target ) =>
-            {   this.manager.atom.colorsEnabled = target.value;   }
+            {   this.manager.resetAtom
+                (   this.root,
+                    this.world,
+                    new Atom
+                    (
+                        this.manager.atom.name, // Element Name
+                        this.manager.atom.atomicNum, // Atomic Number
+                        this.manager.atom.atomicMass, // Atomic Mass
+                        this.manager.atom.atomicSymbol, // Atomic Symbol
+                        this.manager.atom.electronConfigurationExtended, // Electron Configuration
+                        rotateFolder.controllers[0].object.animate, // Rotate boolean
+                        target.value, // Colors
+                    )
+                )
+            }
         )
 
         labelFolder.onChange

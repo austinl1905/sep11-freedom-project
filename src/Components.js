@@ -2,10 +2,34 @@ import { Proton, Neutron, Electron, ElectronShell } from './Meshes.js';
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
+let temp = 0;
+
 class Atom
-{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true)
-    {   this.colorsEnabled = colorsEnabled;
+{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsMode = 'energy-level')
+    {   this.colorsMode = colorsMode;
         this.colorsExtended = Object.entries
+        (   {   _1s: 0x37ff30,
+                _2s: 0x37ff30,
+                _2p: 0xff3037,
+                _3s: 0x37ff30,
+                _3p: 0xff3037,
+                _4s: 0x37ff30,
+                _3d: 0x3037ff,
+                _4p: 0xff3037,
+                _5s: 0x37ff30,
+                _4d: 0x3037ff,
+                _5p: 0xff3037,
+                _6s: 0x37ff30,
+                _4f: 0xff9030,
+                _5d: 0x3037ff,
+                _6p: 0xff3037,
+                _7s: 0x37ff30,
+                _5f: 0xff9030,
+                _6d: 0x3037ff,
+                _7p: 0xff3037
+            }
+        );
+        this.colorsBasic = Object.entries // This is really stupid but it's the only way I was able to get this to work
         (   {   _1s: 0x37ff30,
                 _2s: 0xff3037,
                 _2p: 0xff3037,
@@ -25,16 +49,6 @@ class Atom
                 _5f: 0xf830ff,
                 _6d: 0x30fff8,
                 _7p: 0xffffff
-            }
-        );
-        this.colorsBasic = Object.entries
-        (   {   _1: 0x37ff30,
-                _2: 0xff3037,
-                _3: 0x3037ff,
-                _4: 0xff9030,
-                _5: 0xf830ff,
-                _6: 0x30fff8,
-                _7: 0xffffff,
             }
         );
         this.name = name;
@@ -81,25 +95,73 @@ class Atom
         }
         let subshellCount = 0;
 
-        for ( let i = 0; i < orbitals.length; i++ )
-        {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
-            count = parseInt( count );
-            if ( electrons[ shell - 1 ] )
-            {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
-                {   for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+        if (this.colorsMode == 'energy-level')
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
                 }
                 else
-                {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
                     for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ] ) );   }
                 }
             }
-            else
-            {   electrons[ shell - 1 ] = [];
-                electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
-                for ( let j = 0; j < count; j++ )
-                {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ] ) );   }
+        }
+        else if (this.colorsMode == 'energy-sublevel')
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                }
+                else
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
+                    for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ] ) );   }
+                }
+            }
+        }
+        else
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37, `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37, `${ shell }${ subshell }` ) );   }
+                    }
+                }
+                else
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
+                    for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37 ) );   }
+                }
             }
         }
 
@@ -108,7 +170,7 @@ class Atom
 
     getElectronData()
     {   let totalElectronsPerShell = [];
-        for ( let i = 0; i < this.electrons.length; i++ )
+        getTotalElectronsPerShell: for ( let i = 0; i < this.electrons.length; i++ )
         {   let electronsPerShell = 0;
             for ( let j = 0; j < this.electrons[ i ].length; j++ )
             {   electronsPerShell += this.electrons[ i ][ j ].length;   }
@@ -142,8 +204,46 @@ class AbstractAtomManager
     {   throw new Error('controlElectronMovement is not defined in the base class');   }
 
     // Animation function
-    controlElectronColoration()
-    {   throw new Error('controlElectronColoration is not defined in the base class');   }
+    // controlElectronColoration( intersectedObj )
+    // {   /* This function takes in the intersected object ( which would be an electron but really I'm just too lazy to filter out the rest of the meshes. It makes a minimal effect on performance anyways)
+    //        The reason this is done is to prevent the color of a electrons to immediately change back colors when hovered upon.
+    //        Is it necessary? Maybe not. But I'm not smart enough to figure out a better solution
+    //     */
+    //     if ( this.atom.colorsMode == 'energy-level' )
+    //     {   for (let i = 0; i < this.atom.electrons.length; i++)
+    //         {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+    //             {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+    //                 {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
+    //                     {   this.atom.electrons[i][j][k].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     else if (this.atom.colorsMode == 'energy-sublevel')
+    //     {   if (temp < 1) {console.log(this.atom.electrons)}
+    //         for (let i = 0; i < this.atom.electrons.length; i++)
+    //         {   for (let j = 0; j < this.atom.electrons[i].length; j++)
+    //             {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
+    //                 {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
+    //                     {   this.atom.electrons[i][j][k].mesh.material.color.set( this.atom.colorsExtended[subshellCount][1] );   }
+    //                     if (temp < 1) {console.log(this.atom.colorsExtended[subshellCount]);console.log('subshellCount: ' + subshellCount)}
+    //                 }
+    //                 subshellCount++;
+    //             }
+    //         }
+    //         temp++;
+    //     }
+    //     else
+    //     {   for ( let i = 0; i < this.atom.electrons.length; i++ )
+    //         {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
+    //             {   for ( let k = 0; k < this.atom.electrons[i][j].length; k++ )
+    //                 {   if ( this.atom.electrons[i][j][k].mesh != intersectedObj )
+    //                     {   this.atom.electrons[i][j][k].mesh.material.color.set( 0x37ff37 );   }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     // Initiation function
     createNucleus( scene, world )
@@ -259,34 +359,6 @@ class BohrAtomManager extends AbstractAtomManager
                     let orbitX = Math.cos( 0.5 + angle ) * ( 12 + ( i * 5 ));
                     let orbitZ = Math.sin( 0.5 + angle ) * ( 12 + ( i * 5 ));
                     this.atom.electrons[i][j][k].mesh.position.set( orbitX, 0, orbitZ );
-                }
-            }
-        }
-    }
-
-    // Animation function
-    controlElectronColoration( intersectedObj )
-    {   /* This function takes in the intersected object ( which would be an electron but really I'm just too lazy to filter out the rest of the meshes. It makes a minimal effect on performance anyways)
-           The reason this is done is to prevent the color of a electrons to immediately change back colors when hovered upon.
-           Is it necessary? Maybe not. But I'm not smart enough to figure out a better solution
-        */
-        if ( this.atom.colorsEnabled )
-        {   for (let i = 0; i < this.atom.electrons.length; i++)
-            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
-                    {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
-                        {   this.atom.electrons[i][j][k].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
-                    }
-                }
-            }
-        }
-        else
-        {   for ( let i = 0; i < this.atom.electrons.length; i++ )
-            {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
-                {   for ( let k = 0; k < this.atom.electrons[i][j].length; k++ )
-                    {   if ( this.atom.electrons[i][j][k].mesh != intersectedObj )
-                        {   this.atom.electrons[i][j][k].mesh.material.color.set( 0x37ff37 );   }
-                    }
                 }
             }
         }
