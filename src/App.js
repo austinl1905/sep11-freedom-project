@@ -38,8 +38,21 @@ for ( let i = 0; i < labels.length; i++ )
 {   labels[ i ].classList.add( 'label' );
     labels[ i ].classList.add( 'noDisplay' );
     if ( i > 0 )
-    {   labels[i].style.fontSize = '18px';   }
+    {   labels[i].classList.add( 'labelSmall' );   }
 }
+
+let infoCard = document.querySelector('#infoCard');
+let subshellInnerHTML = infoCard.innerHTML;
+let shellInnerHTML =
+`
+    <p>n=1:</p><div style="background-color:#37ff30;"></div>
+    <p>n=2:</p><div style="background-color:#ff3037;"></div>
+    <p>n=3:</p><div style="background-color:#3037ff;"></div>
+    <p>n=4:</p><div style="background-color:#ff9030;"></div>
+    <p>n=5:</p><div style="background-color:#f830ff;"></div>
+    <p>n=6:</p><div style="background-color:#30fff8;"></div>
+    <p>n=7:</p><div style="background-color:#ffffff;"></div>
+`;
 
 class App
 {   constructor( manager )
@@ -120,7 +133,6 @@ class App
         this.composer.render();
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
-        // this.manager.controlElectronColoration( this.intersectedObject );
         this.world.step( 1 / 60 );
         this.controls.update;
         this.stats.end();
@@ -196,11 +208,14 @@ class App
         // Temporary GUI
         let gui = new GUI();
 
+        if ( window.innerWidth < 800 )
+        {   gui.close();   }
+
         // Default selection for atom model on page load
         let selection =
         {   'atom': 'Helium',
             'animate': true,
-            'mode': 'energy-level',
+            'mode': 'energy-sublevel',
             'labels': true
         };
 
@@ -270,6 +285,17 @@ class App
                         target.value, // Colors
                     )
                 )
+
+                if (target.value == 'energy-sublevel')
+                {   infoCard.innerHTML = subshellInnerHTML;
+                    infoCard.style.display = 'grid';
+                }
+                else if (target.value == 'energy-level')
+                {   infoCard.innerHTML = shellInnerHTML;
+                    infoCard.style.display = 'grid';
+                }
+                else if (target.value == 'none')
+                {   infoCard.style.display = 'none';   }
             }
         )
 

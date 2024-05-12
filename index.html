@@ -13,7 +13,17 @@
             {   color: white;
                 background-color: transparent;
                 font-family: monospace;
-                font-size: 28px;
+                font-size: 2.5em;
+                /* font-weight: bold; */
+                padding: 2px;
+                text-shadow: -0.5px -0.5px 0 #FFFFA6, 0.5px -0.5px 0 #FFFFA6, -0.5px 0.5px 0 #FFFFA6, 0.5px 0.5px 0 #FFFFA6;
+                letter-spacing: 2px;
+            }
+            .labelSmall
+            {   color: white;
+                background-color: transparent;
+                font-family: monospace;
+                font-size: 1.5em;
                 /* font-weight: bold; */
                 padding: 2px;
                 text-shadow: -0.5px -0.5px 0 #FFFFA6, 0.5px -0.5px 0 #FFFFA6, -0.5px 0.5px 0 #FFFFA6, 0.5px 0.5px 0 #FFFFA6;
@@ -21,6 +31,17 @@
             }
             .noDisplay
             {   display: none;  }
+
+            @media screen and (max-width: 800px)
+            {   .label
+                {   font-size: 1.5em;
+                    letter-spacing: 1.5px;
+                }
+                .labelSmall
+                {   font-size: 1.25em;
+                    letter-spacing: 1px;
+                }
+            }
         </style>
         <script type="importmap">
             {
@@ -40,6 +61,12 @@
         <div id = "loadingScreen">
             <h1 class = "loadingScreenText">Loading Model...</h1>
             <h2 class = "loadingScreenText" id="triviaText"></h2>
+        </div>
+        <div id="infoCard">
+            <p>s:</p><div style="background-color:#37ff30;"></div>
+            <p>p:</p><div style="background-color:#ff3037;"></div>
+            <p>d:</p><div style="background-color:#3037ff;"></div>
+            <p>f:</p><div style="background-color:#ff9030;"></div>
         </div>
         <script src="Main.js" type="module"></script>
     </body>
