@@ -1,17 +1,20 @@
+// Core imports
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Misc imports
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+// Renderer imports
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+// Control imports
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Postprocessing imports
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
-
-// All of the code from every single module is compiled here. I have to manually update it every commit though. I should find a better way to do this.
 
 const ATOMS =
 {   'Hydrogen':
@@ -930,9 +933,31 @@ class ElectronShell
 }
 
 class Atom
-{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsEnabled = true)
-    {   this.colorsEnabled = colorsEnabled;
+{   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsMode = 'energy-level')
+    {   this.colorsMode = colorsMode;
         this.colorsExtended = Object.entries
+        (   {   _1s: 0x37ff30,
+                _2s: 0x37ff30,
+                _2p: 0xff3037,
+                _3s: 0x37ff30,
+                _3p: 0xff3037,
+                _4s: 0x37ff30,
+                _3d: 0x3037ff,
+                _4p: 0xff3037,
+                _5s: 0x37ff30,
+                _4d: 0x3037ff,
+                _5p: 0xff3037,
+                _6s: 0x37ff30,
+                _4f: 0xff9030,
+                _5d: 0x3037ff,
+                _6p: 0xff3037,
+                _7s: 0x37ff30,
+                _5f: 0xff9030,
+                _6d: 0x3037ff,
+                _7p: 0xff3037
+            }
+        );
+        this.colorsBasic = Object.entries // This is really stupid but it's the only way I was able to get this to work
         (   {   _1s: 0x37ff30,
                 _2s: 0xff3037,
                 _2p: 0xff3037,
@@ -952,16 +977,6 @@ class Atom
                 _5f: 0xf830ff,
                 _6d: 0x30fff8,
                 _7p: 0xffffff
-            }
-        );
-        this.colorsBasic = Object.entries
-        (   {   _1: 0x37ff30,
-                _2: 0xff3037,
-                _3: 0x3037ff,
-                _4: 0xff9030,
-                _5: 0xf830ff,
-                _6: 0x30fff8,
-                _7: 0xffffff,
             }
         );
         this.name = name;
@@ -1008,25 +1023,73 @@ class Atom
         }
         let subshellCount = 0;
 
-        for ( let i = 0; i < orbitals.length; i++ )
-        {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
-            count = parseInt( count );
-            if ( electrons[ shell - 1 ] )
-            {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
-                {   for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
+        if (this.colorsMode == 'energy-level')
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
                 }
                 else
-                {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
                     for ( let j = 0; j < count; j++ )
-                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], ${ shell }${ subshell } ) );   }
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsBasic[ i ][ 1 ] ) );   }
                 }
             }
-            else
-            {   electrons[shell - 1] = [];
-                electrons[shell - 1][subshells[subshell]] = [];
-                for (let j = 0; j < count; j++)
-                {   electrons[shell - 1][subshells[subshell]].push(new Electron(this.colorsExtended[i][1]));   }
+        }
+        else if (this.colorsMode == 'energy-sublevel')
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ], `${ shell }${ subshell }` ) );   }
+                    }
+                }
+                else
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
+                    for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( this.colorsExtended[ i ][ 1 ] ) );   }
+                }
+            }
+        }
+        else
+        {   for ( let i = 0; i < orbitals.length; i++ )
+            {   let [ shell, subshell, count ] = orbitals[ i ].match( /\d+|[spdf]/gi );
+                count = parseInt( count );
+                if ( electrons[ shell - 1 ] )
+                {   if ( electrons[ shell - 1 ][ subshells[ subshell ] ] )
+                    {   for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37, `${ shell }${ subshell }` ) );   }
+                    }
+                    else
+                    {   electrons[ shell - 1 ][ subshells[ subshell ]] = [];
+                        for ( let j = 0; j < count; j++ )
+                        {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37, `${ shell }${ subshell }` ) );   }
+                    }
+                }
+                else
+                {   electrons[ shell - 1 ] = [];
+                    electrons[ shell - 1 ][ subshells[ subshell ] ] = [];
+                    for ( let j = 0; j < count; j++ )
+                    {   electrons[ shell - 1 ][ subshells[ subshell ] ].push( new Electron( 0x37ff37 ) );   }
+                }
             }
         }
 
@@ -1035,11 +1098,11 @@ class Atom
 
     getElectronData()
     {   let totalElectronsPerShell = [];
-        for (let i = 0; i < this.electrons.length; i++)
+        getTotalElectronsPerShell: for ( let i = 0; i < this.electrons.length; i++ )
         {   let electronsPerShell = 0;
-            for ( let j = 0; j < this.electrons[i].length; j++)
-            {   electronsPerShell += this.electrons[i][j].length;   }
-            totalElectronsPerShell.push(electronsPerShell)
+            for ( let j = 0; j < this.electrons[ i ].length; j++ )
+            {   electronsPerShell += this.electrons[ i ][ j ].length;   }
+            totalElectronsPerShell.push( electronsPerShell )
         }
 
         return totalElectronsPerShell;
@@ -1067,10 +1130,6 @@ class AbstractAtomManager
     // Animation function
     controlElectronMovement()
     {   throw new Error('controlElectronMovement is not defined in the base class');   }
-
-    // Animation function
-    controlElectronColoration()
-    {   throw new Error('controlElectronColoration is not defined in the base class');   }
 
     // Initiation function
     createNucleus( scene, world )
@@ -1138,24 +1197,19 @@ class AbstractAtomManager
 /*
     - Concrete manager for wave mechanical atomic model
 */
-// class QuantumAtomManager extends AbstractAtomManager
-// {   // Initiation Function
-//     createElectrons( scene )
-//     {
+class QuantumAtomManager extends AbstractAtomManager
+{   // Initiation Function
+    createElectrons( scene )
+    {
 
-//     }
+    }
 
-//     // Animation function
-//     controlElectronMovement()
-//     {
+    // Animation function
+    controlElectronMovement()
+    {
 
-//     }
-
-//     controlElectronColoration()
-//     {
-
-//     }
-// }
+    }
+}
 
 /*
     - Concrete manager for Bohr atomic model
@@ -1192,34 +1246,6 @@ class BohrAtomManager extends AbstractAtomManager
     }
 
     // Animation function
-    controlElectronColoration( intersectedObj )
-    {   /* This function takes in the intersected object ( which would be an electron but really I'm just too lazy to filter out the rest of the meshes. It makes a minimal effect on performance anyways)
-           The reason this is done is to prevent the color of a electrons to immediately change back colors when hovered upon.
-           Is it necessary? Maybe not. But I'm not smart enough to figure out a better solution
-        */
-        if ( this.atom.colorsEnabled )
-        {   for (let i = 0; i < this.atom.electrons.length; i++)
-            {   for (let j = 0; j < this.atom.electrons[i].length; j++)
-                {   for (let k = 0; k < this.atom.electrons[i][j].length; k++)
-                    {   if (this.atom.electrons[i][j][k].mesh != intersectedObj)
-                        {   this.atom.electrons[i][j][k].mesh.material.color.set( this.atom.colorsBasic[i][1] );   }
-                    }
-                }
-            }
-        }
-        else
-        {   for ( let i = 0; i < this.atom.electrons.length; i++ )
-            {   for ( let j = 0; j < this.atom.electrons[i].length; j++ )
-                {   for ( let k = 0; k < this.atom.electrons[i][j].length; k++ )
-                    {   if ( this.atom.electrons[i][j][k].mesh != intersectedObj )
-                        {   this.atom.electrons[i][j][k].mesh.material.color.set( 0x37ff37 );   }
-                    }
-                }
-            }
-        }
-    }
-
-    // Animation function
     controlElectronMovement() // This is essentially the same code used when creating electrons except that time is used as well ( to repeatedly reposition the electrons in each animation call)
     {   if ( this.atom.rotateEnabled )
         {   let time = Date.now() * 0.001;
@@ -1239,26 +1265,45 @@ class BohrAtomManager extends AbstractAtomManager
     }
 }
 
+// Just for fun
 let triviaText = document.getElementById('triviaText');
 let triviaPool = ['Iron is the most abundant metal in the universe!', 'Nonmetals in the third period and below can have an expanded octet!', 'Bismuth has the longest half-life of any radioactive element!', 'Manganese has 7 oxidation states!', 'Lead is the heaviest stable element!', "Hydrogen with a single neutron is called Deuterium!", 'In reality, over 99.9% of an atom is empty space!', 'Fluorine is the most electronegative atom!', "Francium has the largest atomic radius of any element!", 'The most recently discovered atom is Tennessine!'];
 triviaText.innerHTML = triviaPool[ Math.floor(Math.random() * triviaPool.length ) ];
 
+/*  To be honest, it's kind of weird for me to shove every single global variable into the constructor of the App.
+    But it also feels weird to have code that isn't a class definition in the App module. So this is the compromise I've come to.
+    - Div elements to be used for the CSS rendering.
+    - I haven't figured out how to access styles from external sheets so I have to add some of my CSS in the HTML style tag.
+*/
 let atomDiv = document.createElement( 'div' );
 let atomNumDiv = document.createElement( 'div' );
 let atomMassDiv = document.createElement( 'div' );
 let labels = [ atomDiv, atomNumDiv, atomMassDiv ];
 
-for (let i = 0; i < labels.length; i++)
-{   labels[i].classList.add('label');
-    labels[i].classList.add('noDisplay');
+for ( let i = 0; i < labels.length; i++ )
+{   labels[ i ].classList.add( 'label' );
+    labels[ i ].classList.add( 'noDisplay' );
     if ( i > 0 )
-    {   labels[i].style.fontSize = '18px';   }
+    {   labels[i].classList.add( 'labelSmall' );   }
 }
+
+let infoCard = document.querySelector('#infoCard');
+let subshellInnerHTML = infoCard.innerHTML;
+let shellInnerHTML =
+`
+    <p>n=1:</p><div style="background-color:#37ff30;"></div>
+    <p>n=2:</p><div style="background-color:#ff3037;"></div>
+    <p>n=3:</p><div style="background-color:#3037ff;"></div>
+    <p>n=4:</p><div style="background-color:#ff9030;"></div>
+    <p>n=5:</p><div style="background-color:#f830ff;"></div>
+    <p>n=6:</p><div style="background-color:#30fff8;"></div>
+    <p>n=7:</p><div style="background-color:#ffffff;"></div>
+`;
 
 class App
 {   constructor( manager )
     {   this.scene = new THREE.Scene();
-        this.root = new THREE.Group();
+        this.root = new THREE.Group(); // Sort of redundant group but there's no good reason to revert it. Also, root sounds cooler than scene.
         this.world = new CANNON.World( 0, 0, 0 );
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.labelRenderer = new CSS2DRenderer();
@@ -1282,7 +1327,7 @@ class App
         this.composer.addPass( this.outlinePass );
         this.outputPass = new OutputPass();
         this.composer.addPass( this.outputPass );
-        this.effectFXAA = new ShaderPass( FXAAShader );
+        this.effectFXAA = new ShaderPass( FXAAShader ); // For antialiasing
         this.effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
         this.composer.addPass( this.effectFXAA );
     }
@@ -1292,27 +1337,19 @@ class App
         this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         this.raycaster.setFromCamera( this.pointer, this.camera );
-        let intersects = this.raycaster.intersectObject(this.scene, true);
+        let intersects = this.raycaster.intersectObject( this.scene, true );
 
         // Highlights intersected objects
 
         if ( this.intersectedObject ) { // Check if value of intersectedObject is not null
-            // this.intersectedObject.material = this.intersectedObject.originalMaterial;
             this.intersectedObject = null;
             this.outlinePass.selectedObjects = [];
         }
 
         if ( intersects.length > 0 )
-        {   let intersectedObject = intersects[0].object;
-            // intersectedObject.originalMaterial = intersectedObject.material.clone();
-            // intersectedObject.material = new THREE.MeshBasicMaterial
-            // (   {   opacity: 0.7,
-            //         transparent: true,
-            //         color: 0xffffff
-            //     }
-            // );
+        {   let intersectedObject = intersects[ 0 ].object;
             this.intersectedObject = intersectedObject;
-            this.outlinePass.selectedObjects = [this.intersectedObject];
+            this.outlinePass.selectedObjects = [ this.intersectedObject ];
         }
     }
 
@@ -1327,22 +1364,21 @@ class App
     animate()
     {   requestAnimationFrame( this.animate );
         this.stats.begin();
-        if (this.manager.allBodiesStatic == true) // Display loading screen if the model is not static
-        {   document.querySelector('#loadingScreen').style.display = 'none';
-            for (let i = 0; i < labels.length; i++)
-            {   labels[i].classList.remove('noDisplay');   }
+        if ( this.manager.allBodiesStatic == true ) // Display loading screen if the model is not static
+        {   document.querySelector( '#loadingScreen' ).style.display = 'none';
+            for ( let i = 0; i < labels.length; i++ )
+            {   labels[i].classList.remove( 'noDisplay' );   }
         }
         else
-        {   document.querySelector('#loadingScreen').style.display = 'flex';
-            for (let i = 0; i < labels.length; i++)
-            {   labels[i].classList.add('noDisplay');   }
+        {   document.querySelector( '#loadingScreen' ).style.display = 'flex';
+            for ( let i = 0; i < labels.length; i++ )
+            {   labels[ i ].classList.add( 'noDisplay' );   }
         }
         this.renderer.render( this.scene, this.camera );
         this.labelRenderer.render( this.scene, this.camera );
         this.composer.render();
         this.manager.controlElectronMovement();
         this.manager.controlNucleonMovement();
-        this.manager.controlElectronColoration( this.intersectedObject );
         this.world.step( 1 / 60 );
         this.controls.update;
         this.stats.end();
@@ -1352,7 +1388,8 @@ class App
     {   this.camera.layers.enableAll();
         this.scene.add( this.root );
 
-        this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
+        // Scale the depth of the camera depending on the radius of the atom
+        this.camera.position.z = this.manager.atom.bohrElectronShells[ this.manager.atom.bohrElectronShells.length - 1 ].radius + 30;
         this.camera.position.y = 10;
         this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
@@ -1366,6 +1403,7 @@ class App
         let atomNumLabel = new CSS2DObject( atomNumDiv );
         let atomMassLabel = new CSS2DObject( atomMassDiv );
 
+        // Set the position of the labels based on the size of the nucleus
         atomLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + this.manager.atom.atomicNum / 20, 0 );
         atomNumLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 3, 0 );
         atomMassLabel.position.set( 0, this.manager.atom.bohrElectronShells[0].radius + ( this.manager.atom.atomicNum / 20 ) - 6, 0 );
@@ -1416,21 +1454,24 @@ class App
         // Temporary GUI
         let gui = new GUI();
 
+        if ( window.innerWidth < 800 )
+        {   gui.close();   }
+
         // Default selection for atom model on page load
         let selection =
-        {   atom: 'Helium',
-            rotate: true,
-            basic: true,
-            labels: true
+        {   'atom': 'Helium',
+            'animate': true,
+            'mode': 'energy-sublevel',
+            'labels': true
         };
 
         let atomFolder = gui.addFolder('Atom');
         atomFolder.add( selection, 'atom');
-        let rotateFolder = gui.addFolder('Rotate');
-        rotateFolder.add( selection, 'rotate', [true, false] );
+        let rotateFolder = gui.addFolder('Animation');
+        rotateFolder.add( selection, 'animate', [true, false] );
         atomFolder.open();
         let colorFolder = gui.addFolder('Colors');
-        colorFolder.add( selection, 'basic', [true, false] );
+        colorFolder.add( selection, 'mode', ['energy-level', 'energy-sublevel', 'none'] );
         let labelFolder = gui.addFolder('Labels');
         labelFolder.add( selection, 'labels', [true, false] );
 
@@ -1448,8 +1489,8 @@ class App
                         ATOMS[processedValue].atomicMass, // Atomic Mass
                         ATOMS[processedValue].atomicSymbol, // Atomic Symbol
                         ATOMS[processedValue].electronConfig, // Electron Configuration
-                        rotateFolder.controllers[0].object.rotate, // Rotate boolean
-                        colorFolder.controllers[0].object.basic, // Colors boolean
+                        rotateFolder.controllers[0].object.animate, // Rotate boolean
+                        colorFolder.controllers[0].object.mode, // Colors
                     )
                 )
 
@@ -1474,9 +1515,34 @@ class App
             {   this.manager.atom.rotateEnabled = target.value;   }
         )
 
-        colorFolder.onChange
+        colorFolder.onChange // Redrawing the atom every time the user wants to change colors because FUCK YOU HAHAHAHAHAHAHA
         (   ( target ) =>
-            {   this.manager.atom.colorsEnabled = target.value;   }
+            {   this.manager.resetAtom
+                (   this.root,
+                    this.world,
+                    new Atom
+                    (
+                        this.manager.atom.name, // Element Name
+                        this.manager.atom.atomicNum, // Atomic Number
+                        this.manager.atom.atomicMass, // Atomic Mass
+                        this.manager.atom.atomicSymbol, // Atomic Symbol
+                        this.manager.atom.electronConfigurationExtended, // Electron Configuration
+                        rotateFolder.controllers[0].object.animate, // Rotate boolean
+                        target.value, // Colors
+                    )
+                )
+
+                if (target.value == 'energy-sublevel')
+                {   infoCard.innerHTML = subshellInnerHTML;
+                    infoCard.style.display = 'grid';
+                }
+                else if (target.value == 'energy-level')
+                {   infoCard.innerHTML = shellInnerHTML;
+                    infoCard.style.display = 'grid';
+                }
+                else if (target.value == 'none')
+                {   infoCard.style.display = 'none';   }
+            }
         )
 
         labelFolder.onChange
@@ -1491,7 +1557,9 @@ class App
     }
 }
 
-let manager = new BohrAtomManager( new Atom( 'Helium', 2, 4, 'He', '1s2', true, true ) );
+let manager = new BohrAtomManager( new Atom( 'Helium', 2, 4, 'He', '1s2', true, 'energy-sublevel' ) );
 
 let app = new App( manager );
 app.initScene();
+
+// If you try to compile this, I can't guarantee it will work 🤪

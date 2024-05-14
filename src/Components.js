@@ -2,8 +2,6 @@ import { Proton, Neutron, Electron, ElectronShell } from './Meshes.js';
 import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
-let temp = 0;
-
 class Atom
 {   constructor( name, atomicNum, atomicMass, atomicSymbol, electronConfigurationExtended, rotateEnabled = true, colorsMode = 'energy-level')
     {   this.colorsMode = colorsMode;
