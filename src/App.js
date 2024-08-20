@@ -170,8 +170,11 @@ class App
         atomNumLabel.layers.set( 1 );
         atomMassLabel.layers.set( 1 );
 
+        // This should work unless you're using a TV you weirdo
+        let cameraMaxZoomFactor = 1 * ((1920 - window.innerWidth) / window.innerWidth);
+
         this.controls.minDistance = 15;
-        this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
+        this.controls.maxDistance = cameraMaxZoomFactor * (this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75);
         this.controls.enablePan = false;
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -249,7 +252,7 @@ class App
                 )
 
                 this.camera.position.z = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 30;
-                this.controls.maxDistance = this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75;
+                this.controls.maxDistance = cameraMaxZoomFactor * (this.manager.atom.bohrElectronShells[this.manager.atom.bohrElectronShells.length - 1].radius + 75)
                 this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
                 atomDiv.textContent = `${this.manager.atom.name} (${this.manager.atom.atomicSymbol})`;
