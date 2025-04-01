@@ -3,6 +3,9 @@
 I just really wanted to make a changelog. I might make this into a library or something. Who knows.
 
 All changes to this project from 2024-04-06 onwards are documented here.
+## [1.3.1] 2025-03-31
+### Changed
+* Updated three.js version. Eventually I may rewrite this project from scratch to reduce dependencies and having to constantly update the imports.
 ## [1.3.0] 2024-04-28
 ### Changed
 * Added postprocessing outline effect to replace original raycasting output.
